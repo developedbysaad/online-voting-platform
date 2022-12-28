@@ -2,7 +2,7 @@
   "development": {
     "username": "postgres",
     "password": "developedbysaad",
-    "database": "vote_db_development",
+    "database": "vote_db_dev",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
@@ -16,7 +16,7 @@
   "production": {
     "username": "root",
     "password": "developedbysaad",
-    "database": "vote_db_production",
+    "database": "vote_db_prod",
     "host": "127.0.0.1",
     "dialect": "postgres"
   }

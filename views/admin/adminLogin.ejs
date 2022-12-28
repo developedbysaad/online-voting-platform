@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <%- include("../layout/head.ejs") %>
+  <title><%= title %></title>
+  </head>
+  <body class="bg-body">
+    <a href="/" class="text-selected-text">Back to home page</a>
+    <div class="grid grid-cols-6 py-4">
+      <div class="col-start-3 col-span-2">
+        <h6 class="text-selected-text">Login to your account</h6>
+        <form action="/session" method="post">
+          <% if(messages && messages.error && messages.error.length > 0)  { %>
+            <% for(var i=0; i<messages.error.length; i++) { %>
+                    <li class="text-red-600"> <%= messages.error[i] %></li>
+            <% } %>
+          <% } %>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="py-3">
+            <label for="email" class="text-selected-text">Email:</label>
+            <input
+              type="email"
+              name="email"
+              class="border border-gray-300 rounded p-2 text-gray-900 w-full"
+            />
+          </div>
+          <div class="py-3">
+            <label for="password" class="text-selected-text">Password:</label>
+            <input
+              type="password"
+              name="password"
+              class="border border-gray-300 rounded p-2 text-gray-900 w-full"
+            />
+          </div>
+          <div class="py-3">
+            <button
+              type="submit"
+              class="text-white rounded bg-green-600 hover:bg-green-800 px-5 py-2"
+            >
+              Sign in
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
