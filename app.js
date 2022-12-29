@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const csrf = require("tiny-csrf");
 const flash = require("connect-flash");
+const moment = require("moment");
 
 const passport = require("passport");
 const connectEnsureLogin = require("connect-ensure-login");
@@ -41,6 +42,7 @@ app.use(
 app.use(flash());
 app.use(function (request, response, next) {
   response.locals.messages = request.flash();
+  response.locals.moment = moment;
   next();
 });
 
@@ -95,7 +97,7 @@ app.get("/", function (request, response) {
 
 // Admin Sign-up
 app.get("/signup", function (request, response) {
-  response.render("session/adminSignup", {
+  response.render("sessions/adminSignup", {
     title: "signup",
     csrfToken: request.csrfToken(),
   });
@@ -143,7 +145,7 @@ app.post("/users", async (request, response) => {
 
 // Admin Login
 app.get("/login", function (request, response) {
-  response.render("session/adminLogin", {
+  response.render("sessions/adminLogin", {
     title: "signup",
     csrfToken: request.csrfToken(),
   });
@@ -162,16 +164,6 @@ app.post(
   }
 );
 
-// Admin sign out
-app.get("/signout", (request, response, next) => {
-  request.logout((err) => {
-    if (err) {
-      return next(err);
-    }
-    response.redirect("/login");
-  });
-});
-
 // Admin Dashboard
 app.get(
   "/home",
@@ -184,12 +176,39 @@ app.get(
       where: { adminID: request.user.id },
     });
 
-    response.render("home/adminDashboard", {
+    response.render("admins/dashboard", {
       username: admin.name,
       elections: elections,
-      csrf: request.csrfToken(),
+      csrfToken: request.csrfToken(),
     });
   }
 );
+
+//  Admin Profile page
+
+app.get(
+  "/profile",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const loggedInAdminID = request.user.id;
+    const admin = await Admin.findByPk(loggedInAdminID);
+    response.render("admins/profile", {
+      username: admin.name,
+      admin: admin,
+      csrfToken: request.csrfToken(),
+      title: "Profile",
+    });
+  }
+);
+
+// Admin sign out
+app.get("/signout", (request, response, next) => {
+  request.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    response.redirect("/login");
+  });
+});
 
 module.exports = app;

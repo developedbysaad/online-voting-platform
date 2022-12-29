@@ -1,18 +1,37 @@
-<body class="bg-body text-white">
-    <div class="grid grid-cols-6 py-4">
-        <div class="col-start-3 col-span-2">
-          <%- include("header.ejs") %>
-          <p>Welcome to the To-Do manager</p>
-          <p class="py-2">
-            New here? <a href="/signup" class="text-green-600">Sign-up now</a>
-          </p>
-          <p class="py-2">
-            Already have an account?
-            <a href="/login" class="text-green-600">Sign-in</a>
-          </p>
-        </div>
-        <div class="col-start-3 col-span-2 m-auto">
-          <%- include("footer.ejs") %>
-        </div>
+    
+<body class="bg-body overflow-hidden">
+  <header class="nav bg-nav text-white">
+    <nav class="relative px-2 py-3">
+      <div class="container mx-auto flex justify-between ">
+        <ul class="hidden md:flex space-x-6 ml-20 mt-2">
+          <a href="/" class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white">Online Voting Platform
+          </a>
+        </ul>
+        <span class="mt-2"><a href="/login" class="bg-theme px-5 py-2 rounded-3xl hover:bg-hover-theme text-white hidden md:flex" role="button">Sign In</a>
+        </span>
+          <!-- Submenu ends -->
+        </li>
       </div>
+    </nav>
+  </header>
+  
+  
+  
+  <!-- Hero section starts -->
+  <section class="flex bg-body h-96">
+    <div class="container mx-auto flex justify-center items-center flex-col">
+      
+      <h1 class="text-white text-4xl md:text-5xl font-bold text-center">
+        Secure, Cloud-based Elections
+      </h1>
+      <p class="text-white pt-3 text-center w-1/2">Create an election for your school or organization in seconds.</p>
+
+      <a href="/signup" class="mt-9 bg-theme px-12 py-3 rounded-3xl hover:bg-hover-theme text-white" role="button">
+        Get started!
+      </a>
+
+    </div>
+    
+  </section>
+  
 </body>
