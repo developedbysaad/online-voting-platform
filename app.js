@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { Admin } = require("./models");
+const { Admin, Election } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -95,23 +95,16 @@ app.get("/", function (request, response) {
 
 // Admin Sign-up
 app.get("/signup", function (request, response) {
-  response.render("admin/adminSignup", {
+  response.render("session/adminSignup", {
     title: "signup",
     csrfToken: request.csrfToken(),
   });
 });
 
-// Admin Dashboard
-app.get(
-  "/home",
-  connectEnsureLogin.ensureLoggedIn(),
-  function (request, response) {
-    response.render("home/dashboard");
-  }
-);
+// Admin Section Starts
 
-// Create Admin Users
-//Create Users
+//Create Admin Users
+
 app.post("/users", async (request, response) => {
   // Could validate password in model file [ was having trouble using "len"], therefore using flash here to validate
   if (request.body.password.length === 0) {
@@ -150,7 +143,7 @@ app.post("/users", async (request, response) => {
 
 // Admin Login
 app.get("/login", function (request, response) {
-  response.render("admin/adminLogin", {
+  response.render("session/adminLogin", {
     title: "signup",
     csrfToken: request.csrfToken(),
   });
@@ -178,4 +171,25 @@ app.get("/signout", (request, response, next) => {
     response.redirect("/login");
   });
 });
+
+// Admin Dashboard
+app.get(
+  "/home",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const loggedInAdminID = request.user.id;
+    const admin = await Admin.findByPk(loggedInAdminID);
+
+    const elections = await Election.findAll({
+      where: { adminID: request.user.id },
+    });
+
+    response.render("home/adminDashboard", {
+      username: admin.name,
+      elections: elections,
+      csrf: request.csrfToken(),
+    });
+  }
+);
+
 module.exports = app;
