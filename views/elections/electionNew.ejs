@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("../layout/head") %>
+    <script>
+        function toggleModal() {
+  document.getElementById('modal').classList.toggle('hidden')
+}
+    </script>
+</head>
+<body class="text-area">
+    <div class="flex items-center justify-center h-full">
+        <button class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white" onclick="toggleModal()"><i class="fa fa-plus"></i> New Election</button>
+      </div>
+      <div class="fixed z-10 overflow-y-auto top-0 w-full left-0 hidden" id="modal">
+        <div class="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+          <div class="fixed inset-0 transition-opacity">
+            <div class="absolute inset-0 bg-gray-900 opacity-75" />
+          </div>
+          <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+          <div class="inline-block align-center bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <label class="text-sm text-gray-600 w-full block">Title</label>
+              <input type="text" class="mt-2 border-2 border-gray-200 px-3 py-2 block w-full rounded-lg text-base text-gray-900 focus:outline-none focus:border-indigo-500" placeholder="Title  of the election">
+              <label class="text-sm text-gray-600 w-full block pt-4">Description</label>
+              <textarea class="mt-2 border-2 border-gray-200 px-3 py-2 block w-full rounded-lg text-base text-gray-900 focus:outline-none focus:border-indigo-500" placeholder="Description"></textarea>
+            </div>
+            <div class="bg-gray-200 px-4 py-3 text-right">
+              <button type="button" class="py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-700 mr-2" onclick="toggleModal()"><i class="fas fa-times"></i> Cancel</button>
+              <a href="/election/:id" class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700 mr-2"><i class="fas fa-plus"></i> Create</a>
+            </div>
+          </div>
+        </div>
+      </div>
+</body>
+</html>
