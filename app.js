@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { Admin, Election } = require("./models");
+const { Admin, Election, Question, Option } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Session using passport.js
+//           -------------------- Session using passport.js --------------------
 
 app.use(cookieParser("shh! some secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
@@ -92,7 +92,9 @@ passport.deserializeUser((id, done) => {
 // Session section end here
 
 app.get("/", function (request, response) {
-  response.render("layout/index");
+  response.render("layout/index", {
+    csrfToken: request.csrfToken(),
+  });
 });
 
 // Admin Sign-up
@@ -103,7 +105,7 @@ app.get("/signup", function (request, response) {
   });
 });
 
-// Admin Section Starts
+//          -------------------- Admin Section ------------------------
 
 //Create Admin Users
 
@@ -173,7 +175,7 @@ app.get(
     const admin = await Admin.findByPk(loggedInAdminID);
 
     const elections = await Election.findAll({
-      where: { adminID: request.user.id },
+      where: { adminId: request.user.id },
     });
 
     response.render("admins/dashboard", {
@@ -210,5 +212,259 @@ app.get("/signout", (request, response, next) => {
     response.redirect("/login");
   });
 });
+
+//              --------------- Election Section ------------------
+
+// Create Election
+
+app.post(
+  "/election",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const loggedInAdminID = request.user.id;
+
+    try {
+      const electionId = await Election.add(
+        loggedInAdminID,
+        request.body.title
+      );
+      const id = electionId.id;
+      response.redirect(`/election/${id}/question`);
+    } catch (error) {
+      console.log(error);
+      response.send(error);
+    }
+  }
+);
+
+// election home page
+app.get(
+  "/election/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const elections = await Election.findByPk(request.params.id);
+
+    const questions = await Question.findAll({
+      where: { electionId: request.params.id },
+    });
+
+    response.render("elections/addQuestion", {
+      election: elections,
+      username: admin.name,
+      questions: questions,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+// Edit / Update name of election
+
+app.post(
+  "/election/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Election.update(
+        { name: request.body.title },
+        { where: { id: request.params.id } }
+      );
+      response.redirect(`/election/${request.params.id}`);
+    } catch (error) {
+      console.log(error);
+      return response.send(error);
+    }
+  }
+);
+//             ---------------- Question Section ------------------------
+
+// Get questions of the election
+app.get(
+  "/election/:id/questionJson",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const allQuestions = await Question.findAll({
+      where: { electionId: request.params.id },
+    });
+
+    return response.json(allQuestions);
+  }
+);
+
+// election home page
+app.get(
+  "/election/:id/question",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const elections = await Election.findByPk(request.params.id);
+
+    const questions = await Question.findAll({
+      where: { electionId: request.params.id },
+    });
+
+    response.render("elections/addQuestion", {
+      election: elections,
+      username: admin.name,
+      questions: questions,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+// Create Question
+
+app.post(
+  "/election/:id/questions/add",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const question = await Question.add(
+        request.body.title,
+        request.body.description,
+        request.params.id
+      );
+      console.log(question);
+      response.redirect(`/election/${request.params.id}`);
+    } catch (error) {
+      console.log(error);
+      return response.send(error);
+    }
+  }
+);
+
+// Delete Question
+
+app.delete(
+  "/election/:id/question/:questiondId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Option.destroy({
+        where: { questionId: request.params.questiondID },
+      });
+
+      // delete question
+      await Question.destroy({ where: { id: request.params.questiondID } });
+      return response.json({ ok: true });
+    } catch (error) {
+      console.log(error);
+      return response.send(error);
+    }
+  }
+);
+
+//             ---------------- Option Section ------------------------
+
+// get options
+app.get(
+  "/election/:electionID/question/:questionId/options",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const options = await Option.findAll({
+      where: { questionId: request.params.questionId },
+    });
+    return response.send(options);
+  }
+);
+
+// UI to add options
+app.get(
+  "/election/:electionId/question/:questionId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const election = await Election.findByPk(request.params.electionId);
+    const question = await Question.findByPk(request.params.questionId);
+    const option = await Option.findAll({
+      where: {
+        questionId: request.params.questionId,
+      },
+    });
+    return response.render("elections/addOptions", {
+      username: admin.name,
+      election: election,
+      question: question,
+      option: option,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+// add option to questions
+app.post(
+  "/election/:electionId/question/:questionId/options/add",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.electionId);
+    const question = await Question.findByPk(request.params.questionId);
+
+    if (election.launched) {
+      console.log("Election already launched");
+      return response.render("error", {
+        errorMessage: "Election is already live",
+      });
+    }
+
+    try {
+      await Option.add(request.body.option, request.params.questionId);
+      response.redirect(
+        `/election/${request.params.electionId}/question/${request.params.questionId}`
+      );
+    } catch (error) {
+      console.log(error);
+      request.flash(
+        "error",
+        error.errors.map((error) => error.message)
+      );
+      console.log(error);
+      return response.redirect(
+        `/election/${election.id}/question/${question.id}`
+      );
+    }
+  }
+);
+
+// delete option for question
+app.delete(
+  "/election/:electionId/question/:questionId/option/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const election = await Election.findByPk(request.params.electionId);
+
+    if (election.adminId !== adminId) {
+      return response.render("error", {
+        errorMessage: "You are not authorized to view this page",
+      });
+    }
+
+    const Question = await Question.findByPk(request.params.questionId);
+
+    if (!Question) {
+      console.log("Question not found");
+      return response.render("error", { errorMessage: "Question not found" });
+    }
+
+    try {
+      await Option.destroy({ where: { id: request.params.id } });
+      return response.json({ ok: true });
+    } catch (error) {
+      console.log(error);
+      return response.send(error);
+    }
+  }
+);
+
+//             ---------------- Voter Section ------------------------
+
+//             ---------------- Election preview section ------------------------
+
+//             ---------------- Election Launch section ------------------------
+
+//             ---------------- Election result section ------------------------
 
 module.exports = app;

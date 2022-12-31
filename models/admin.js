@@ -9,7 +9,26 @@ module.exports = (sequelize, DataTypes) => {
      */
     // eslint-disable-next-line no-unused-vars
     static associate(models) {
-      // define association here
+      Admin.hasMany(models.Election, {
+        foreignKey: "adminId",
+      });
+    }
+
+    static createAdmin(name, email, password) {
+      return this.create({
+        name,
+        email,
+        password,
+      });
+    }
+
+    static async updatePassword(password, id) {
+      const user = await this.findByPk(id);
+      if (!user) {
+        throw { errors: [{ message: "User does not exist" }] };
+      }
+      user.password = password;
+      return await user.save();
     }
   }
   Admin.init(

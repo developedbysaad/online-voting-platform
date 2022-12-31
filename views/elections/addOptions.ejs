@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("../layout/head.ejs") %>
+    <%- include("script.ejs") %>
+  </head>
+  <body class="bg-body text-white">
+    <%- include("header.ejs") %>
+    <%- include("electionHeader.ejs") %>
+ <div class="rounded border w-1/2 mx-auto mt-4">
+    <!-- Tabs -->
+    <ul id="tabs" class="inline-flex pt-2 px-1 w-full border-b">
+      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/question">Create Questions</a></li>
+      <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Create Options</a></li>
+      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="voter">Create Voters</a></li>
+    </ul>
+  
+    <!-- Tab Contents -->
+    <div id="tab-contents">
+      <div id="first" class="hidden p-4">
+      </div>
+      <div id="second" class="p-4">
+        <%= question.title %>
+        <div class="container mt-5 flex flex-col justify-center sm:flex-row gap-3 w-full">
+            <div class="h-7 w-8 border-b border-l border-stone-500 rounded-bl-lg shrink-0"></div>
+            <!-- form start -->
+            <form action="/election/<%=election.id%>/question/<%=question.id%>/options/add" method="post" class=" w-5/6">
+              <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                  <li class="text-red-600"> <%= messages.error[i] %></li>
+                  <% } %>
+                  <% } %>
+            <!-- hidden csrf input -->
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <!-- option input -->
+              <input type="text" name="option" class="sm:w-4/6 h-12 p-3 text-gray-900 border border-solid border-gray-300 rounded-lg shadow" placeholder="Option" >
+              <button type="submit" class="w-20 h-12 text-white bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+                <i class="fa fa-plus"></i>
+              </button>
+          </form>
+          <!-- form end -->
+        </div>
+      </div>
+      <div id="third" class="hidden p-4">
+      </div>
+    </div>
+  </div>
+
+  <div class=" flex rounded border w-1/2 mx-auto mt-4">
+    <button class="text-lg font-bold shrink-0 w-40 h-20 text-white bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+      Question
+    </button>
+    <div class="ml-5 m-auto">
+      <%= question.title %>
+    </div>
+  </div>
+  <% for (let i=0; i<option.length; i++) { %>
+  <div class=" flex rounded border w-1/2 mx-auto mt-4">
+    <button class="text-md shrink-0 w-40 h-12 text-white bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+      Option <%= i+1 %>
+    </button>
+    <div class="ml-5 m-auto text-white">
+      <%= option[i].option %>
+    </div>
+  </div>
+  <% } %>
