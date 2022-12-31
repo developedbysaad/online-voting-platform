@@ -9,9 +9,50 @@ module.exports = (sequelize, DataTypes) => {
      */
     // eslint-disable-next-line no-unused-vars
     static associate(models) {
-      // define association here
+      Election.belongsTo(models.Admin, {
+        foreignKey: "adminId",
+      });
+      Election.hasMany(models.Question, {
+        foreignKey: "electionId",
+      });
+      Election.hasMany(models.Voter, {
+        foreignKey: "electionId",
+      });
+    }
+    static async add(adminID, name) {
+      const res = await Election.create({
+        adminID: adminID,
+        name: name,
+        launched: false,
+        ended: false,
+      });
+      return res;
+    }
+    static async launch(id) {
+      const res = await Election.update(
+        { launched: true },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+      return res;
+    }
+
+    static async end(id) {
+      const res = await Election.update(
+        { ended: true },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+      return res;
     }
   }
+
   Election.init(
     {
       name: DataTypes.STRING,

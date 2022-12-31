@@ -1,0 +1,54 @@
+<script>
+    // end election API
+    function endElection(id) {
+      const token = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
+
+      fetch(`/election/${id}/end`, {
+        method: "PUT",
+        _csrf: token,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          _csrf: token
+        })
+      }).then((res) => {
+        if (res.ok) {
+          window.location.reload();
+        }
+      });
+    }
+
+    //delete voter
+    function deleteVoter(electionID, id) {
+      const token = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
+
+      fetch(`/election/${electionID}/voter/${id}/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          _csrf: token
+        })
+      }).then(res => {
+        if (res.ok) {
+          window.location.reload();
+        }
+      })
+    }
+
+    // electionEdit Script
+    
+    function toggleModal() {
+  document.getElementById('modal').classList.toggle('hidden')
+}
+
+
+
+
+</script>
