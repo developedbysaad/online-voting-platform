@@ -10,14 +10,14 @@
     <div class="container flex justify-center content-center gap-2 w-full">
       <h1 class="text-xl font-bold ">Ballot</h1>
       <div class="w-1 h-1 mt-3 bg-blue-200 rounded-full"></div>
-      <p class="text-xl">2 Question</p>
+      <p class="text-xl"><%= questions.length %> Questions</p>
     </div>
 <div class="rounded border w-5/6 mx-auto mt-4">
     <!-- Tabs -->
     <ul id="tabs" class="inline-flex pt-2 px-1 w-full border-b">
         
-      <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Create Questions</a></li>
-      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/voter">Create Voters</a></li>
+      <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Add Questions</a></li>
+      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="voter">Add Voters</a></li>
     </ul>
   
     <!-- Tab Contents -->
@@ -77,12 +77,6 @@
                     >
                     Question
                 </th>
-                
-                <th
-                class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                >
-                Status
-            </th>
             <th
                 class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"
                 ></th>
@@ -95,9 +89,8 @@
                             
                             <div class="ml-3">
                                 <p class="text-gray-900 whitespace-no-wrap">
-                                    1
+                                    <%= i + 1 %>
                                 </p>
-                                <p class="text-gray-600 whitespace-no-wrap">Id no: 1</p>
                             </div>
                         </div>
                     </td>
@@ -105,17 +98,6 @@
                     <p class="text-gray-900 whitespace-normal"><%= questions[i].title %></p>
                 </td>
                 
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span
-                    class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
-                    >
-                    <span
-                    aria-hidden
-                    class="absolute inset-0 bg-green-200 opacity-50 rounded-full"
-                    ></span>
-                    <span class="relative">4 Options</span>
-                </span>
-                </td>
                 <td
                 class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right"
                 >
@@ -124,62 +106,18 @@
                     class="inline-block text-gray-500 hover:text-gray-700"
                   ><a href="/election/<%= election.id %>/question/<%= questions[i].id %>">
                     <button class="w-40 h-12 text-white bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
-                    <i class="fa fa-plus">&nbsp; Create Options</i>
+                    <i class="fa fa-plus">&nbsp; Add Options</i>
                 </button>
                 </a>
                 </button>
             </td>
             </tr>
-            <tr>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    
-                    <div class="ml-3">
-                        <p class="text-gray-900 whitespace-no-wrap">
-                            2
-                        </p>
-                        <p class="text-gray-600 whitespace-no-wrap">Id no: 2</p>
-                    </div>
-                </div>
-            </td>
-            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                <p class="text-gray-900 whitespace-no-wrap">$20,000</p>
-                <p class="text-gray-600 whitespace-no-wrap">USD</p>
-                </td>
-                
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span
-                    class="relative inline-block px-3 py-1 font-semibold text-orange-900 leading-tight"
-                    >
-                  <span
-                  aria-hidden
-                  class="absolute inset-0 bg-orange-200 opacity-50 rounded-full"
-                  ></span>
-                  <span class="relative">0 Option</span>
-                </span>
-                </td>
-                <td
-                class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right"
-                >
-                <button
-                type="button"
-                class="inline-block text-gray-500 hover:text-gray-700"
-                  >
-                    <svg
-                    class="inline-block h-6 w-6 fill-current"
-                    viewBox="0 0 24 24"
-                      >
-                      <path
-                      d="M12 6a2 2 0 110-4 2 2 0 010 4zm0 8a2 2 0 110-4 2 2 0 010 4zm-2 6a2 2 0 104 0 2 2 0 00-4 0z"
-                      />
-                    </svg>
-                </button>
-            </td>
-              </tr>
+  
               <% } %>
             </tbody>
           </table>
           <% if (questions.length === 0) { %>
-              <h1 class="text-2xl flex justify-center text-gray-600 font-semibold">Questions you create will appear here</h1>
+              <h1 class="text-2xl flex justify-center text-gray-600 font-semibold">Questions you add will appear here</h1>
           <% } %>
         </div>
     </div>

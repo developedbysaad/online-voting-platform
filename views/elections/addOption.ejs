@@ -10,9 +10,9 @@
  <div class="rounded border w-1/2 mx-auto mt-4">
     <!-- Tabs -->
     <ul id="tabs" class="inline-flex pt-2 px-1 w-full border-b">
-      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/question">Create Questions</a></li>
-      <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Create Options</a></li>
-      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="voter">Create Voters</a></li>
+      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/question">Add Questions</a></li>
+      <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Add Options</a></li>
+      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/voter">Add Voters</a></li>
     </ul>
   
     <!-- Tab Contents -->
@@ -47,16 +47,26 @@
   </div>
 
   <div class=" flex rounded border w-1/2 mx-auto mt-4">
-    <button class="text-lg font-bold shrink-0 w-40 h-20 text-white bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+    <button class="text-lg font-bold shrink-0 w-40 h-20 text-gray-900 bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
       Question
     </button>
     <div class="ml-5 m-auto">
       <%= question.title %>
     </div>
   </div>
+  <% if (option.length === 0 ) { %>
+    <div class=" flex rounded border w-1/2 mx-auto mt-4">
+      <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+        Option <%= 1 %>
+      </button>
+      <div class="ml-5 m-auto text-gray-500">
+        Options that you add will appear here
+      </div>
+    </div>
+    <% } %>
   <% for (let i=0; i<option.length; i++) { %>
   <div class=" flex rounded border w-1/2 mx-auto mt-4">
-    <button class="text-md shrink-0 w-40 h-12 text-white bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+    <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
       Option <%= i+1 %>
     </button>
     <div class="ml-5 m-auto text-white">
