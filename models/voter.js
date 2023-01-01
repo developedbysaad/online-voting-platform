@@ -9,24 +9,24 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Voter.belongsTo(models.Election, {
-        foreignKey: "electionID",
+        foreignKey: "electionId",
       });
     }
-    static async add(voterID, password, electionID) {
+    static async add(voterId, password, electionId) {
       const res = await Voter.create({
-        voterID: voterID,
+        voterId: voterId,
         password: password,
-        electionID: electionID,
+        electionId: electionId,
         voted: false,
         responses: [],
       });
       return res;
     }
 
-    static async delete(voterID) {
+    static async delete(voterId) {
       const res = await Voter.destroy({
         where: {
-          id: voterID,
+          id: voterId,
         },
       });
       return res;

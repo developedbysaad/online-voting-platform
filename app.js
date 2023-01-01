@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { Admin, Election, Question, Option } = require("./models");
+const { Admin, Election, Voter, Question, Option } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -292,7 +292,7 @@ app.get(
   }
 );
 
-// election home page
+// Web page to add questions
 app.get(
   "/election/:id/question",
   connectEnsureLogin.ensureLoggedIn(),
@@ -346,7 +346,6 @@ app.delete(
         where: { questionId: request.params.questiondID },
       });
 
-      // delete question
       await Question.destroy({ where: { id: request.params.questiondID } });
       return response.json({ ok: true });
     } catch (error) {
@@ -360,7 +359,7 @@ app.delete(
 
 // get options
 app.get(
-  "/election/:electionID/question/:questionId/options",
+  "/election/:electionID/question/:questionId/option",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const options = await Option.findAll({
@@ -384,7 +383,7 @@ app.get(
         questionId: request.params.questionId,
       },
     });
-    return response.render("elections/addOptions", {
+    return response.render("elections/addOption", {
       username: admin.name,
       election: election,
       question: question,
@@ -460,6 +459,57 @@ app.delete(
 );
 
 //             ---------------- Voter Section ------------------------
+
+// Create Voter
+
+// get voters of election
+app.get(
+  "/election/:id/voterJson",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const voters = await Voter.findAll({
+      where: { electionId: request.params.id },
+    });
+
+    return response.json(voters);
+  }
+);
+
+// Web page to add voters
+app.get(
+  "/election/:id/voter",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const election = await Election.findByPk(request.params.id);
+    const voters = await Voter.findAll({
+      where: { electionId: request.params.id },
+    });
+
+    response.render("elections/addVoter", {
+      election: election,
+      username: admin.name,
+      voters: voters,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+app.post(
+  "/election/:id/voters/add",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const hashpwd = await bcrypt.hash(request.body.password, saltRounds);
+      await Voter.add(request.body.voterId, hashpwd, request.params.id);
+      response.redirect(`/election/${request.params.id}/voter`);
+    } catch (error) {
+      console.log(error);
+      return response.send(error);
+    }
+  }
+);
 
 //             ---------------- Election preview section ------------------------
 
