@@ -237,28 +237,6 @@ app.post(
   }
 );
 
-// election home page
-app.get(
-  "/election/:id",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
-    const elections = await Election.findByPk(request.params.id);
-
-    const questions = await Question.findAll({
-      where: { electionId: request.params.id },
-    });
-
-    response.render("elections/addQuestion", {
-      election: elections,
-      username: admin.name,
-      questions: questions,
-      csrfToken: request.csrfToken(),
-    });
-  }
-);
-
 // Edit / Update name of election
 
 app.post(
@@ -270,7 +248,7 @@ app.post(
         { name: request.body.title },
         { where: { id: request.params.id } }
       );
-      response.redirect(`/election/${request.params.id}`);
+      response.redirect(`/election/${request.params.id}/question`);
     } catch (error) {
       console.log(error);
       return response.send(error);
@@ -327,10 +305,29 @@ app.post(
         request.params.id
       );
       console.log(question);
-      response.redirect(`/election/${request.params.id}`);
+      response.redirect(`/election/${request.params.id}/question`);
     } catch (error) {
       console.log(error);
       return response.send(error);
+    }
+  }
+);
+
+// edit question
+app.post(
+  "/election/:electionId/question/:questionId/update",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Question.edit(
+        request.body.title,
+        request.body.description,
+        request.params.questionId
+      );
+      response.redirect(`/election/${request.params.electionId}/question/`);
+    } catch (error) {
+      console.log(error);
+      return;
     }
   }
 );
@@ -343,10 +340,10 @@ app.delete(
   async (request, response) => {
     try {
       await Option.destroy({
-        where: { questionId: request.params.questiondID },
+        where: { questionId: request.params.questiondId },
       });
 
-      await Question.destroy({ where: { id: request.params.questiondID } });
+      await Question.destroy({ where: { id: request.params.questiondId } });
       return response.json({ ok: true });
     } catch (error) {
       console.log(error);
@@ -383,11 +380,17 @@ app.get(
         questionId: request.params.questionId,
       },
     });
+    const voter = await Voter.findAll({
+      where: {
+        electionId: request.params.electionId,
+      },
+    });
     return response.render("elections/addOption", {
       username: admin.name,
       election: election,
       question: question,
       option: option,
+      voter: voter,
       csrfToken: request.csrfToken(),
     });
   }
@@ -432,22 +435,6 @@ app.delete(
   "/election/:electionId/question/:questionId/option/:id",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    const adminId = request.user.id;
-    const election = await Election.findByPk(request.params.electionId);
-
-    if (election.adminId !== adminId) {
-      return response.render("error", {
-        errorMessage: "You are not authorized to view this page",
-      });
-    }
-
-    const Question = await Question.findByPk(request.params.questionId);
-
-    if (!Question) {
-      console.log("Question not found");
-      return response.render("error", { errorMessage: "Question not found" });
-    }
-
     try {
       await Option.destroy({ where: { id: request.params.id } });
       return response.json({ ok: true });
@@ -504,6 +491,21 @@ app.post(
       const hashpwd = await bcrypt.hash(request.body.password, saltRounds);
       await Voter.add(request.body.voterId, hashpwd, request.params.id);
       response.redirect(`/election/${request.params.id}/voter`);
+    } catch (error) {
+      console.log(error);
+      return response.send(error);
+    }
+  }
+);
+
+// delete voter
+app.post(
+  "/election/:electionId/voter/:voterId/delete",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Voter.delete(request.params.voterId);
+      return response.json({ ok: true });
     } catch (error) {
       console.log(error);
       return response.send(error);

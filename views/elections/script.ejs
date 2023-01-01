@@ -49,6 +49,46 @@
 }
 
 
+//delete voter
+function deleteVoter(electionId, id) {
+        var token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+        fetch(`/election/${electionId}/voter/${id}/delete`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _csrf: token
+          })
+        }).then(res => {
+          if (res.ok) {
+            window.location.reload();
+          }
+        })
+      }
 
+      
+ function deleteQuestion(id) {
+                var token = document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content");
+                fetch(`/election/<%= election.id %>/question/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _csrf: token
+                    })
+                }).then(res => {
+                    if (res.ok === true) {
+                        window.location.reload()
+                    }
+                })
+            }
+
+      
 
 </script>
