@@ -23,6 +23,21 @@ module.exports = (sequelize, DataTypes) => {
       return res;
     }
 
+    static async edit(voterId, password, id) {
+      const res = await Voter.update(
+        {
+          voterId,
+          password,
+        },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+      return res;
+    }
+
     static async delete(voterId) {
       const res = await Voter.destroy({
         where: {

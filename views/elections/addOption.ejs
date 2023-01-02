@@ -43,6 +43,11 @@ function deleteOption(id) {
   <body class="bg-body text-white">
     <%- include("header.ejs") %>
     <%- include("electionHeader.ejs") %>
+    <div class="pt-5 container flex justify-center content-center gap-2 w-full">
+      <h1 class="text-xl font-bold ">Ballot</h1>
+      <div class="w-1 h-1 mt-3 bg-blue-200 rounded-full"></div>
+      <p class="text-xl"><%= options.length %> Option</p>
+    </div>
  <div class="rounded border w-1/2 mx-auto mt-4">
     <!-- Tabs -->
     <ul id="tabs" class="inline-flex pt-2 px-1 w-full border-b">
@@ -90,29 +95,36 @@ function deleteOption(id) {
       <%= question.title %>
     </div>
   </div>
-  <% if (option.length === 0 ) { %>
+  <% if (options.length === 0 ) { %>
     <div class=" flex rounded border w-1/2 mx-auto mt-4">
       <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
-        Option <%= 1 %>
+        Option 1
       </button>
       <div class="ml-5 m-auto text-gray-500">
         Options that you add will appear here
       </div>
     </div>
     <% } %>
-  <% for (let i=0; i<option.length; i++) { %>
+  <% for (let i=0; i<options.length; i++) { %>
    
-  <div class="flex rounded border w-1/2 mx-auto mt-4">
+  <div class="flex rounded border w-1/2 mx-auto mt-4 gap-2">
     <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
       Option <%= i+1 %>
     </button>
+      <!-- edit -->
     <div class="ml-5 m-auto text-white">
-      <%= option[i].option %>
+      <%= options[i].option %>
     </div>
-    <button onclick="deleteOption(<%= option[i].id %>)"
+    <a href="/election/<%= election.id %>/question/<%=question.id%>/option/<%=options[i].id%>/editOption">
+      <button
+      class="w-20 h-12 text-white bg-red-400 rounded-lg hover:bg-red-500">
+      <i class="fa fa-edit"></i>
+  </button>
+</a>
+<!-- delete -->
+    <button onclick="deleteOption(<%= options[i].id %>)"
     class="w-20 h-12 text-white bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
     <i class="fa fa-trash"></i>
   </button>
-
-  </div>
+</div>
   <% } %>

@@ -21,10 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       return res;
     }
 
-    static async edit(value, id) {
+    static async edit(option, id) {
       const res = await Option.update(
         {
-          option: value,
+          option: option,
         },
         {
           where: {
