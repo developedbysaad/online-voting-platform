@@ -6,12 +6,13 @@
   </head>
   <body class="bg-body text-white">
     <%- include("header.ejs") %>
+    <%- include("electionHeader.ejs") %>
 <div class="rounded border w-5/6 mx-auto mt-4">
     <!-- Tabs -->
     <ul id="tabs" class="inline-flex pt-2 px-1 w-full border-b">
         
-      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/question">Add Questions</a></li>
-      <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Edit Question</a></li>
+      <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/voter">Add Voters</a></li>
+      <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Edit voter</a></li>
     </ul>
   
     <!-- Tab Contents -->
@@ -19,21 +20,21 @@
       <div id="first" class="p-4">
         <div class="flex items-center justify-center h-full">
         <div class="inline-block align-center rounded-lg text-left overflow-hidden  sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form action="/election/<%= election.id %>/question/<%= question.id %>/update" method="post">
+            <form action="/election/<%= election.id %>/voter/<%= voter.id %>/update" method="post">
                 <!-- Hidden input for csrf -->
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="py-2">
-                        <label class="text-white w-full block">Question</label>
-                        <input name="title" autofocus placeholder="Enter new question here" type="text" class="w-full h-12 p-3 text-gray-900 border border-solid border-gray-300 rounded-lg shadow" value="<%= question.title %>"/>
+                        <label class="text-white w-full block">Voter Id</label>
+                        <input type="text" name="voterId" autofocus placeholder="Enter new Voter Id here" type="text" class="w-full h-12 p-3 text-gray-900 border border-solid border-gray-300 rounded-lg shadow" value="<%= voter.voterId %>"/>
                     </div>
                     <div>
-                        <label>Description:</label>
-                        <textarea name="description" placeholder="Enter new description here" class="w-full p-3 text-gray-900 border border-solid border-gray-300 rounded-lg shadow"><%= question.description %></textarea>
+                        <label>Password:</label>
+                        <input type="password" name="password" placeholder="Enter new password here" class="w-full p-3 text-gray-900 border border-solid border-gray-300 rounded-lg shadow">
                     </div>
                 </div>
                 <div class="px-4 py-2 text-center">
-                    <button type="submit" class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700 mr-2"><i class="fas fa-Save"></i> Save</button>
+                    <button type="submit" class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700 mr-2"><i class="fa fa-save">&nbsp;</i> Save</button>
                 </div>
             </form>
             

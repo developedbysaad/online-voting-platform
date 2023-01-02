@@ -313,7 +313,26 @@ app.post(
   }
 );
 
-// edit question
+// edit question UI
+app.get(
+  "/election/:electionId/question/:questionId/editQuestion",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const election = await Election.findByPk(request.params.electionId);
+
+    const question = await Question.findByPk(request.params.questionId);
+    response.render("elections/editQuestion", {
+      username: admin.name,
+      election: election,
+      question: question,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+// Update question
 app.post(
   "/election/:electionId/question/:questionId/update",
   connectEnsureLogin.ensureLoggedIn(),
@@ -375,7 +394,7 @@ app.get(
     const admin = await Admin.findByPk(adminId);
     const election = await Election.findByPk(request.params.electionId);
     const question = await Question.findByPk(request.params.questionId);
-    const option = await Option.findAll({
+    const options = await Option.findAll({
       where: {
         questionId: request.params.questionId,
       },
@@ -389,7 +408,7 @@ app.get(
       username: admin.name,
       election: election,
       question: question,
-      option: option,
+      options: options,
       voter: voter,
       csrfToken: request.csrfToken(),
     });
@@ -430,6 +449,44 @@ app.post(
   }
 );
 
+// Edit Option UI
+
+app.get(
+  "/election/:electionId/question/:questionId/option/:optionId/editOption",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const election = await Election.findByPk(request.params.electionId);
+    const option = await Option.findByPk(request.params.optionId);
+    const question = await Question.findByPk(request.params.questionId);
+    response.render("elections/editOption", {
+      username: admin.name,
+      election: election,
+      question: question,
+      option: option,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+// Edit option
+app.post(
+  "/election/:electionId/question/:questionId/option/:optionId/update",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Option.edit(request.body.option, request.params.optionId);
+      response.redirect(
+        `/election/${request.params.electionId}/question/${request.params.questionId}`
+      );
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+  }
+);
+
 // delete option for question
 app.delete(
   "/election/:electionId/question/:questionId/option/:id",
@@ -462,7 +519,7 @@ app.get(
   }
 );
 
-// Web page to add voters
+// Add voters UI
 app.get(
   "/election/:id/voter",
   connectEnsureLogin.ensureLoggedIn(),
@@ -494,6 +551,45 @@ app.post(
     } catch (error) {
       console.log(error);
       return response.send(error);
+    }
+  }
+);
+
+// edit voter UI
+app.get(
+  "/election/:electionId/voter/:voterId/editVoter",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const election = await Election.findByPk(request.params.electionId);
+    const voter = await Voter.findByPk(request.params.voterId);
+    const question = await Question.findByPk(request.params.questionId);
+    response.render("elections/editVoter", {
+      username: admin.name,
+      election: election,
+      question: question,
+      voter: voter,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+// edit voter
+app.post(
+  "/election/:electionId/voter/:voterId/update",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Voter.edit(
+        request.body.voterId,
+        request.body.password,
+        request.params.voterId
+      );
+      response.redirect(`/election/${request.params.electionId}/voter`);
+    } catch (error) {
+      console.log(error);
+      return;
     }
   }
 );
