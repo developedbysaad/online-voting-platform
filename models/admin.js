@@ -22,13 +22,19 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async updatePassword(password, id) {
-      const user = await this.findByPk(id);
-      if (!user) {
-        throw { errors: [{ message: "User does not exist" }] };
-      }
-      user.password = password;
-      return await user.save();
+    static async updatePassword(name, email, password, id) {
+      return await this.update(
+        {
+          name,
+          email,
+          password,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
     }
   }
   Admin.init(

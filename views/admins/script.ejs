@@ -1,0 +1,19 @@
+<script>
+     // function to delete election
+     function deleteElection(id) {
+        let token = document
+          .querySelector('meta[name="csrf-token"]')
+          .getAttribute("content");
+
+          fetch(`/election/${id}/delete`, {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ _csrf: token }),
+          }).then((res) => {
+          if (res.ok) {
+            window.location.reload();
+          }
+        })
+        .catch((err) => console.log(err));
+      }
+</script>
