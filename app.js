@@ -203,6 +203,30 @@ app.get(
   }
 );
 
+// Admin password update
+
+app.post(
+  "/profile/update",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const loggedInAdminID = request.user.id;
+    const admin = await Admin.findByPk(loggedInAdminID);
+    try {
+      const hashpwd = await bcrypt.hash(request.body.password, saltRounds);
+      await Admin.updatePassword(
+        request.body.name,
+        request.body.email,
+        hashpwd,
+        admin.id
+      );
+      response.redirect("/profile");
+    } catch (error) {
+      console.log(error);
+      return response.send(error);
+    }
+  }
+);
+
 // Admin sign out
 app.get("/signout", (request, response, next) => {
   request.logout((err) => {
@@ -230,6 +254,45 @@ app.post(
       );
       const id = electionId.id;
       response.redirect(`/election/${id}/question`);
+    } catch (error) {
+      console.log(error);
+      response.send(error);
+    }
+  }
+);
+
+// delete election
+app.delete(
+  "/election/:id/delete",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    // get all questions of that election
+    const questions = await Question.findAll({
+      where: { electionId: request.params.id },
+    });
+
+    // delete all options and then questions of that election
+    questions.forEach(async (Question) => {
+      const options = await Option.findAll({
+        where: { questionId: Question.id },
+      });
+      options.forEach(async (option) => {
+        await Option.destroy({ where: { id: option.id } });
+      });
+      await Question.destroy({ where: { id: Question.id } });
+    });
+
+    // delete voters of the election
+    const voters = await Voter.findAll({
+      where: { electionId: request.params.id },
+    });
+    voters.forEach(async (voter) => {
+      await Voter.destroy({ where: { id: voter.id } });
+    });
+
+    try {
+      await Election.destroy({ where: { id: request.params.id } });
+      return response.json({ ok: true });
     } catch (error) {
       console.log(error);
       response.send(error);
@@ -610,6 +673,38 @@ app.post(
 );
 
 //             ---------------- Election preview section ------------------------
+
+// election preview
+app.get(
+  "/election/:id/preview",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const adminId = request.user.id;
+    const admin = await Admin.findByPk(adminId);
+    const election = await Election.findByPk(request.params.id);
+
+    const questions = await Question.findAll({
+      where: { electionId: request.params.id },
+    });
+
+    const options = [];
+
+    for (let i = 0; i < questions.length; i++) {
+      const allOption = await Option.findAll({
+        where: { questionId: questions[i].id },
+      });
+      options.push(allOption);
+    }
+
+    response.render("elections/preview", {
+      username: admin.name,
+      election: election,
+      questions: questions,
+      options: options,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
 //             ---------------- Election Launch section ------------------------
 
