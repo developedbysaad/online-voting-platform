@@ -48,29 +48,29 @@ function deleteOption(id) {
       <div class="w-1 h-1 mt-3 bg-blue-200 rounded-full"></div>
       <p class="text-xl"><%= options.length %> Option</p>
     </div>
- <div class="rounded border w-1/2 mx-auto mt-4">
+    <div class="rounded border w-1/2 mx-auto mt-4">
     <!-- Tabs -->
     <ul id="tabs" class="inline-flex pt-2 px-1 w-full border-b">
       <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/question">Add Questions</a></li>
       <li class="bg-white px-4 text-gray-800 font-semibold py-2 rounded-t border-t border-r border-l -mb-px"><a id="default-tab" href="">Add Options</a></li>
       <li class="px-4 text-white hover:text-gray-800 hover:bg-white font-semibold py-2 rounded-t"><a href="/election/<%=election.id%>/voter">Add Voters</a></li>
     </ul>
-  
+    
     <!-- Tab Contents -->
     <div id="tab-contents">
       <div id="first" class="hidden p-4">
       </div>
       <div id="second" class="p-4">
         <%= question.title %>
+        <% if(messages && messages.error && messages.error.length > 0)  { %>
+          <% for(var i=0; i<messages.error.length; i++) { %>
+            <li class="text-red-600 "> <%= messages.error[i] %></li>
+            <% } %>
+            <% } %>
         <div class="container mt-5 flex flex-col justify-center sm:flex-row gap-3 w-full">
             <div class="h-7 w-8 border-b border-l border-white-500 rounded-bl-lg shrink-0"></div>
             <!-- form start -->
             <form action="/election/<%=election.id%>/question/<%=question.id%>/options/add" method="post" class=" w-5/6">
-              <% if(messages && messages.error && messages.error.length > 0)  { %>
-                <% for(var i=0; i<messages.error.length; i++) { %>
-                  <li class="text-red-600"> <%= messages.error[i] %></li>
-                  <% } %>
-                  <% } %>
             <!-- hidden csrf input -->
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <!-- option input -->

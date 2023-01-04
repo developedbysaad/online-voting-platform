@@ -14,12 +14,10 @@
     <span class="bg-gray-700 boder-2 px-6 py-2 rounded-3xl text-white">&nbsp; <i class="fa fa-eye"></i> Preview Mode</span>
   </div>
 
-  <div class="flex justify-center text-blue-800">
-  </div>
   <div class="flex flex-col justify-center items-center p-4">
     <div class="flex flex-col justify-center md:w-2/5 w-full ">
       <div class="flex justify-center pb-6 border mb-8 bg-nav">
-        <p class="text-4xl font-semibold pt-4"><%= election.name %></p>
+        <p class="text-4xl font-semibold pt-4 pl-5"><%= election.name %></p>
       </div>
 
       <div class="flex flex-col gap-4">
@@ -31,9 +29,11 @@
             </button>
             <p class="font-bold text-xl m-3"> <%= questions[i].title %></p>
           </div>
+          <% if (questions[i].description) { %>
           <div class="flex rounded border w-full mx-auto mt-4 ">
             <p class="text-gray-400 m-3"><%= questions[i].description %></p>
           </div>
+          <% } %>
           <div class="pt-2 pl-6">
             <% for (let j=0; j<options[i].length; j++) { %>
             <div class="flex ">

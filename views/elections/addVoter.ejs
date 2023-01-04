@@ -27,7 +27,13 @@
       <div id="first" class="p-4">
         <div class="flex items-center justify-center h-full">
           <div class="inline-block align-center rounded-lg text-left overflow-hidden  sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <!-- form start -->
             <form action="/election/<%= election.id %>/voters/add" method="post">
+              <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <li class="text-red-600"> <%= messages.error[i] %></li>
+                <% } %>
+              <% } %>
               <!-- Hidden input for csrf -->
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
