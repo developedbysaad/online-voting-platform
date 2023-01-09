@@ -6,7 +6,9 @@
   "scripts": {
     "start": "nodemon -e js, ejs",
     "tailwind:css": "postcss public/css/tailwind.css -o public/css/styles.css --watch",
-    "test": "jest",
+    "db:create:test": "NODE_ENV=test npx sequelize-cli db:create",
+    "pretest": "NODE_ENV=test npx sequelize-cli db:drop && NODE_ENV=test npx sequelize-cli db:create",
+    "test": "NODE_ENV=test jest --detectOpenHandles",
     "prepare": "husky install"
   },
   "repository": {
@@ -29,7 +31,6 @@
   "dependencies": {
     "autoprefixer": "^10.4.13",
     "bcrypt": "^5.1.0",
-    "chart.js": "^4.1.1",
     "connect-ensure-login": "^0.1.1",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.6",
@@ -48,6 +49,7 @@
     "tiny-csrf": "^1.1.3"
   },
   "devDependencies": {
+    "cheerio": "^1.0.0-rc.12",
     "eslint": "^8.30.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
@@ -58,6 +60,7 @@
     "lint-staged": "^13.1.0",
     "nodemon": "^2.0.20",
     "prettier": "^2.8.1",
-    "sequelize-cli": "^6.5.2"
+    "sequelize-cli": "^6.5.2",
+    "supertest": "^6.3.3"
   }
 }

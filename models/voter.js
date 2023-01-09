@@ -13,18 +13,17 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
     static async add(voterId, password, electionId) {
-      const res = await Voter.create({
+      return await Voter.create({
         voterId: voterId,
         password: password,
         electionId: electionId,
         voted: false,
         responses: [],
       });
-      return res;
     }
 
     static async edit(voterId, password, id) {
-      const res = await Voter.update(
+      return await Voter.update(
         {
           voterId,
           password,
@@ -35,20 +34,18 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      return res;
     }
 
     static async delete(voterId) {
-      const res = await Voter.destroy({
+      return await Voter.destroy({
         where: {
           id: voterId,
         },
       });
-      return res;
     }
 
-    static async markVoted(id) {
-      const res = await Voter.update(
+    static async markAsVoted(id) {
+      return await Voter.update(
         {
           voted: true,
         },
@@ -58,11 +55,10 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      return res;
     }
 
     static async addResponse(id, response) {
-      const res = await Voter.update(
+      return await Voter.update(
         {
           responses: response,
         },
@@ -72,7 +68,6 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      return res;
     }
   }
   Voter.init(
@@ -80,6 +75,7 @@ module.exports = (sequelize, DataTypes) => {
       voterId: DataTypes.STRING,
       password: DataTypes.STRING,
       electionId: DataTypes.INTEGER,
+      responses: DataTypes.ARRAY(DataTypes.INTEGER),
       voted: DataTypes.BOOLEAN,
     },
     {

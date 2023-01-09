@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("../layout/head.ejs") %>
+  <title><%= title %></title>
+</head>
+<body class="bg-body">
+
+<header class="flex justify-center w-full text-white mt-10">
+  <span class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white">Online Voting Platform</span>
+</header>
+      <div class="w-full bg-white rounded shadow-lg p-8 m-4  md:max-w-sm md:mx-auto">
+        <span class="block w-full text-xl uppercase font-bold mb-4">Voter Login</span> 
+        <!-- Form starts here -->
+        <form class="mb-2" action="/election/<%=election.id%>/voterLogin" method="post">
+          <% if(messages && messages.error && messages.error.length > 0)  { %>
+            <% for(var i=0; i<messages.error.length; i++) { %>
+                    <li class="text-red-600"> <%= messages.error[i] %></li>
+            <% } %>
+          <% } %>
+          <!-- Hidden Input for csrf token -->
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="mb-4 md:w-full">
+            <!-- Label for Email -->
+            <label  class="block text-xs mb-1">Voter Id:</label>
+            <!-- Input for Email -->
+            <input
+              type="text"
+              name="voterId"
+              autofocus
+              class="w-full border rounded p-2 outline-none focus:shadow-outline"
+            />
+          </div>
+          <div class="mb-6 md:w-full">
+            <!-- Label for Password -->
+            <label for="password" class="block text-xs mb-1">Password:</label>
+            <!-- Label for Password -->
+            <input
+              type="password"
+              name="password"
+              class="w-full border rounded p-2 outline-none focus:shadow-outline" 
+            />
+          </div>
+          <!-- Button -->
+            <button
+              type="submit"
+              class="bg-green-500 hover:bg-green-700 text-white uppercase text-sm font-semibold px-4 py-2 rounded"
+            >
+              Sign in
+            </button>
+        </form>
+        <!-- Form ends here -->
+      </div>
+  </body>
+</html>

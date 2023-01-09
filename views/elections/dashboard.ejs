@@ -9,64 +9,38 @@
 <body class="bg-body text-white">
   <%- include("header.ejs") %>
   <!-- Election is live -->
-  <div class="container mx-auto flex justify-center p-5">
+    <div class="container mx-auto flex justify-between p-5">
+        <div></div>
+        <div class="flex ml-20 pl-10">
       <div class="animate-pulse rounded-full bg-red-600 h-10 w-10"></div>
       <p class="pl-5 text-4xl"> Election is <span class="text-red-500 font-bold animate-pulse">Live</span> </p>
     </div>
+    <!-- Button to end election -->
+      <button onclick="endElection(<%= election.id %>)" type="submit" class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white">End this Election</button>
+    </div>
+
     
    <div class="container mx-auto flex justify-center text-2xl">
-    <p class="font-semibold text-gray-400">Public URL :</p> &nbsp;<a href=/election/<%=election.id%>/vote> &nbsp; <span class="text-blue-400">/election/<%=election.id%>/vote</span></a>
+    <p class="font-semibold text-gray-400">Public URL :</p> &nbsp;<a href="/election/<%=election.id%>/vote" target="_blank"> &nbsp; <span class="text-blue-400">/election/<%=election.id%>/vote &nbsp; <i class="fa fa-external-link-alt animate-bounce"></i></span></a>
    </div>
+
+
+   
+   <!-- view Live result -->
+
+   <div class="container flex mx-auto w-5/6  pt-8">
+     <a href="/election/<%= election.id %>/voter" class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white">Manage Voters &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
+       <a href="/election/<%= election.id %>/result" target="_blank" class="bg-red-400 boder-2 px-6 py-2 mx-auto rounded-3xl hover:bg-red-500 text-white">View Live Result &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
+       <p class="pt-2 text-gray-300 text-xl"><%= votesCount %> / <%= totalVoters %> Voters voted</p>
+    </div>
+
+
+     
+
     <!-- no of Voters -->
+    
+    <%- include("votersList.ejs",) %>
 
-  <div class="container mx-auto w-5/6 items py-8">
-        <table class="min-w-full leading-normal">
-            <thead>
-                <tr>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                    S.no
-                </th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                    Voter Id
-                </th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                    Status
-                </th>
-                </tr>
-            </thead>
-            <tbody>
-                <% for (let i=0; i<voters.length; i++) { %>
-                    <tr>
-                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-
-                            <div class="ml-3">
-                                <p class="text-gray-900 whitespace-no-wrap">
-                                    <%= i + 1 %>
-                                </p>
-                            </div>
-                        </td>
-                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <div class="ml-3">
-                                <p class="text-gray-900 whitespace-no-wrap">
-                                    <%= voters[i].voterId %>
-                                </p>
-                            </div>
-                        </td>
-                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                                <% let color = "" %>
-                                <% (voters[i].voted) ? color="bg-green-200" : color="bg-orange-200"  %>
-                                <span aria-hidden class="absolute inset-0 opacity-50 rounded-full <%= color %>"></span>
-                                    <span class="relative">
-                                        <%= (voters[i].voted) ? "Voted" : "Not Voted"  %>
-                                    </span>
-                            </span>
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-  </div>
   <%- include("../layout/footer.ejs") %>
 </body>
 

@@ -22,7 +22,7 @@
       <div class="w-full bg-white rounded shadow-lg p-8 m-4 md:max-w-sm md:mx-auto">
         <span class="block w-full text-xl uppercase font-bold mb-4">Login</span> 
         <!-- Form starts here -->
-        <form class="mb-4" action="/session" method="post">
+        <form class="mb-2" action="/session" method="post">
           <% if(messages && messages.error && messages.error.length > 0)  { %>
             <% for(var i=0; i<messages.error.length; i++) { %>
                     <li class="text-red-600"> <%= messages.error[i] %></li>
@@ -30,7 +30,7 @@
           <% } %>
           <!-- Hidden Input for csrf token -->
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <div class="mb-4 md:w-full">
+          <div class="mb-4   md:w-full">
             <!-- Label for Email -->
             <label for="email" class="block text-xs mb-1">Email:</label>
             <!-- Input for Email -->
@@ -60,7 +60,6 @@
             </button>
         </form>
         <!-- Form ends here -->
-        <a class="text-blue-700 text-center text-sm" href="/login">Forgot password?</a>
       </div>
     </div>
   </body>

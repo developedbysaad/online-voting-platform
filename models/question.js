@@ -16,19 +16,18 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
     static async add(title, description, electionId) {
-      const res = await Question.create({
+      return await Question.create({
         title: title,
         description: description,
         electionId: electionId,
       });
-      return res;
     }
 
     static async edit(title, description, questionId) {
-      const res = await Question.update(
+      return await Question.update(
         {
-          title: title,
-          description: description,
+          title,
+          description,
         },
         {
           where: {
@@ -36,7 +35,6 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      return res;
     }
   }
   Question.init(
