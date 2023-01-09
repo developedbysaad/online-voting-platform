@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <%- include("../layout/head.ejs") %>
+</head>
+<body class="bg-body text-white">
+    <% if (election.ended) { %>
+        <div class="flex justify-center">
+        <p class="text-2xl text-gray-600">This election has ended.</p>
+        </div>
+    <% } else if (!election.launched) { %>
+        <div class="flex justify-center">
+            <p class="text-4xl text-selected-text absolute top-20">
+              This election is not launched. Please check sometime later
+            </p>
+        </div>
+    <% } else { %>
+        <% if (voter.voted) { %>
+            <div class="flex justify-center">
+                <p class="text-4xl text-selected-text absolute top-20">Thank you for voting.</p>
+            </div>
+        <% } else { %>
+            <%- include ('ballot.ejs', {election: election, voter: voter}) %>
+        <% } %>
+    <% } %>
+</body>
+</html>

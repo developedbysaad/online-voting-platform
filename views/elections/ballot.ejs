@@ -1,0 +1,43 @@
+  <div class="flex flex-col justify-center items-center p-4">
+    <div class="flex flex-col justify-center md:w-2/5 w-full ">
+      <div class="flex justify-center pb-6 border mb-8 bg-nav">
+        <p class="text-4xl font-semibold pt-4 pl-5"><%= election.name %></p>
+      </div>
+
+      <form action="/election/<%= election.id %>/voter/<%= voter.id%>/submit" method="post" class="pt-6">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="flex flex-col gap-4">
+          <% for (var i=0; i<questions.length; i++) { %>
+            <div>
+              <div class="flex rounded border w-full mx-auto mt-4 ">
+                <button class="text-lg font-bold w-20 h-auto text-gray-900 bg-red-400 rounded hover:bg-red-500">
+                  <%= i+1 %>.
+                </button>
+                <p class="text-gray-400 font-bold text-xl m-3"> <%= questions[i].title %></p>
+              </div>
+              <% if (questions[i].description) { %>
+              <div class="flex rounded border w-full mx-auto mt-4 ">
+                <p class="text-gray-400 m-3"><%= questions[i].description %></p>
+              </div>
+              <% } %>
+              <div class="pt-2 pl-6">
+                <% for (let j=0; j<options[i].length; j++) { %>
+                  <div class="flex ">
+                    <div class="h-6 w-7 mt-5 mr-2 border-b border-l border-white-500 rounded-bl-lg shrink-0"></div>
+                    <div class="flex rounded border w-full py-3 px-5 mx-auto mt-4">
+                      <input class="mr-2" id="<%= questions[i].id %>-<%= options[i][j].id %>" type="radio" value="<%= options[i][j].id %>" name="question-<%= questions[i].id %>" />
+                      <label for="<%= questions[i].id %>-<%= options[i][j].id %>"><%= options[i][j].option %></label>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+          <div class="flex justify-center">
+            <button type="Submit" class="text-xl py-2 px-6 font-semibold bg-blue-500 text-white rounded hover:bg-blue-700 "> Submit</button>
+          </div>
+        </div>
+      </form>  
+    </div>
+  </div>

@@ -7,14 +7,14 @@
     "dialect": "postgres"
   },
   "test": {
-    "username": "root",
+    "username": "postgres",
     "password": "developedbysaad",
     "database": "vote_db_test",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
-    "username": "root",
+    "username": "postgres",
     "password": "developedbysaad",
     "database": "vote_db_prod",
     "host": "127.0.0.1",

@@ -18,6 +18,9 @@ module.exports = {
       electionId: {
         type: Sequelize.INTEGER,
       },
+      responses: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+      },
       voted: {
         type: Sequelize.BOOLEAN,
       },
@@ -28,15 +31,6 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-      },
-    });
-
-    await queryInterface.addConstraint("Voters", {
-      fields: ["electionId"],
-      type: "foreign key",
-      references: {
-        table: "Elections",
-        field: "id",
       },
     });
   },

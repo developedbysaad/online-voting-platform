@@ -8,7 +8,9 @@
 
 <body class="bg-body text-white">
   <%- include("header.ejs") %>
-  <%- include("electionHeader.ejs") %>
+  <% if (!election.launched) { %> 
+    <%- include("electionHeader.ejs") %>
+  <% } %> 
   <div class="container flex justify-center content-center gap-2 w-full mt-5">
     <h1 class="text-xl font-bold ">Ballot</h1>
     <div class="w-1 h-1 mt-3 bg-blue-200 rounded-full"></div>

@@ -14,34 +14,31 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async add(option, questionId) {
-      const res = await Option.create({
-        option: option,
-        questionId: questionId,
+      return await Option.create({
+        option,
+        questionId,
       });
-      return res;
     }
 
     static async edit(option, id) {
-      const res = await Option.update(
+      return await Option.update(
         {
-          option: option,
+          option,
         },
         {
           where: {
-            id: id,
+            id,
           },
         }
       );
-      return res;
     }
 
     static async delete(questionId) {
-      const res = await Option.destroy({
+      return await Option.destroy({
         where: {
           id: questionId,
         },
       });
-      return res;
     }
   }
   Option.init(
