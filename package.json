@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start:prod": "node index.js",
     "start": "nodemon -e js, ejs",
     "tailwind:css": "postcss public/css/tailwind.css -o public/css/styles.css --watch",
     "db:create:test": "NODE_ENV=test npx sequelize-cli db:create",
