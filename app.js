@@ -86,9 +86,13 @@ passport.deserializeUser((user, done) => {
 // Session section end here
 
 app.get("/", function (request, response) {
-  response.render("layout/index", {
-    csrfToken: request.csrfToken(),
-  });
+  if (request.user && request.user.id) {
+    response.redirect("/home");
+  } else {
+    response.render("layout/index", {
+      csrfToken: request.csrfToken(),
+    });
+  }
 });
 
 // Admin Sign-up
@@ -846,7 +850,7 @@ app.get(
       ) {
         return response.render("elections/draft");
       }
-      return response.redirect("back");
+      return response.redirect("/home");
     }
     if (election.ended) {
       return response.redirect(`/election/${request.params.id}/result`);

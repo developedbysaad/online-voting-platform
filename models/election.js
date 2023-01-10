@@ -21,17 +21,16 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async add(adminId, name) {
-      const res = await Election.create({
+      return await Election.create({
         adminId,
         name,
         launched: false,
         ended: false,
       });
-      return res;
     }
 
     static async launch(id) {
-      const res = await Election.update(
+      return await Election.update(
         { launched: true },
         {
           where: {
@@ -39,11 +38,10 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      return res;
     }
 
     static async end(id) {
-      const res = await Election.update(
+      return await Election.update(
         { ended: true },
         {
           where: {
@@ -51,7 +49,6 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      return res;
     }
   }
 
