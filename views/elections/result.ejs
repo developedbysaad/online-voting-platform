@@ -33,75 +33,14 @@
    <div class="flex justify-center">
      <p class="pt-2 text-gray-300 text-xl"><%= votesCount %> / <%= totalVoters %> Voters voted</p>
    </div>
-        
-        <script>
-          let data, config, chart;
-    </script>
-    
-     <div class="flex justify-center m-10 p-10 gap-5 flex-wrap">
-        <% for (let l=0; l<questions.length; l++) { %>
-          <div class="bg-gray-100 border rounded-3xl px-5 pb-5 w-2/5">
-            <div class="">
-              <p class="font-bold text-xl m-5"><%= l+1 %>. <%= questions[l].title %></p>
-              <hr>
-              <p class="text-gray-600 m-5"><%= questions[l].description %></p>
-            </div>
-            <div>
-              <canvas id="chart-<%=questions[l].id%>" ></canvas>
-            </div>
-          </div>
-          <% } %>
-      </div>
-      <script>
-      <% for (let k=0; k<questions.length; k++) { %>
-    // setup 
-    data = {
-      labels: <%- JSON.stringify(totalOption[k]) %>,
-      datasets: [{
-        label: 'Total Votes',
-        data: <%- JSON.stringify(totalData[k]) %>,
-        backgroundColor: [
-          'rgba(255, 26, 104, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-          'rgba(0, 0, 0, 0.2)'
-        ],
-        borderColor: [
-          'rgba(255, 26, 104, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
-          'rgba(0, 0, 0, 1)'
-        ],
-        borderWidth: 1,
-        labels: {
-        }
-        
-      }]
-    };
 
-    // config 
-    config = {
-      type: 'pie',
-      data,
-      options: {}
-    };
-
-    // render init block
-    myChart = new Chart(
-      document.getElementById("chart-<%=questions[k].id%>"),
-      config
-    );
+  <!-- Charts -->
+        
+    <%- include("resultChart.ejs") %>
+        
+  <!-- Voters List -->
+    <% if (admin == true) { %>
+      <%- include("votersList.ejs", {voters}) %>
     <% } %>
-    </script>
-
-<% if (admin == true) { %>
-  <%- include("votersList.ejs", {voters}) %>
-  <% } %>
   </body>
 </html>
