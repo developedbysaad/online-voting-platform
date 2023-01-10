@@ -30,16 +30,16 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
           where: {
-            id: id,
+            id,
           },
         }
       );
     }
 
-    static async delete(voterId) {
+    static async delete(id) {
       return await Voter.destroy({
         where: {
-          id: voterId,
+          id,
         },
       });
     }
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
           where: {
-            id: id,
+            id,
           },
         }
       );
@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
           where: {
-            id: id,
+            id,
           },
         }
       );

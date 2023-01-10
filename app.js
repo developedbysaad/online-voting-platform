@@ -240,6 +240,19 @@ app.get("/signout", (request, response, next) => {
 
 //              --------------- Election Section ------------------
 
+// Get election in Json format
+app.get(
+  "/electionJson",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const elections = await Election.findAll({
+      where: { adminId: request.user.id },
+    });
+
+    return response.json(elections);
+  }
+);
+
 // Create Election
 
 app.post(

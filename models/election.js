@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         { launched: true },
         {
           where: {
-            id: id,
+            id,
           },
         }
       );
@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
         { ended: true },
         {
           where: {
-            id: id,
+            id,
           },
         }
       );
