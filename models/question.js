@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
     }
     static async add(title, description, electionId) {
       return await Question.create({
-        title: title,
-        description: description,
-        electionId: electionId,
+        title,
+        description,
+        electionId,
       });
     }
 

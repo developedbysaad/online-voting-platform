@@ -80,7 +80,7 @@ describe("Online Voting Platform", function () {
     const res = await agent.get("/home");
     const csrfToken = extractCsrfToken(res);
     const response = await agent.post("/election").send({
-      title: "Science Quiz",
+      name: "Science Quiz",
       _csrf: csrfToken,
     });
     expect(response.statusCode).toBe(302);
@@ -88,19 +88,85 @@ describe("Online Voting Platform", function () {
 
   //  edit election
 
+  test("Update election", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+
+    let electionsResponse = await agent
+      .get("/electionJson")
+      .set("Accept", "application/json");
+    let elections = JSON.parse(electionsResponse.text);
+
+    let electionId = elections[elections.length - 1].id;
+
+    const res = await agent.get(`/election/${electionId}/question`);
+    const csrfToken = extractCsrfToken(res);
+
+    let response = await agent.post(`/election/${electionId}`).send({
+      title: "Edit Quiz",
+      _csrf: csrfToken,
+    });
+    expect(response.statusCode).toEqual(302);
+  });
+
   //  delete election
 
-  //  end election (31 ms)
+  //  Preview Election
+
+  //  Launch Election
+
+  //  end election
 
   //  end election and check results page
 
   // ----------------------------- Ballot Section ------------------------------
 
-  //  add question
+  //  Add question
+
+  test("Create a question", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+
+    let res = await agent.get("/home");
+    let csrfToken = extractCsrfToken(res);
+    await agent.post("/election").send({
+      name: "Sed ut perspiciatis",
+      _csrf: csrfToken,
+    });
+
+    let electionsResponse = await agent
+      .get("/electionJson")
+      .set("Accept", "application/json");
+    let elections = JSON.parse(electionsResponse.text);
+
+    let electionId = elections[elections.length - 1].id;
+
+    let questionsResponse = await agent
+      .get(`/election/${electionId}/questionJson`)
+      .set("Accept", "application/json");
+    let count = JSON.parse(questionsResponse.text).length;
+    console.log(count);
+
+    res = await agent.get("/home");
+    csrfToken = extractCsrfToken(res);
+    await agent.post(`/election/${electionId}/questions/add`).send({
+      title: "Lorem ipsum dolor sit amet?",
+      description:
+        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis",
+      _csrf: csrfToken,
+    });
+
+    questionsResponse = await agent
+      .get(`/election/${electionId}/questionJson`)
+      .set("Accept", "application/json");
+    let latestCount = JSON.parse(questionsResponse.text).length;
+
+    expect(latestCount).toBe(count + 1);
+  });
 
   //  edit question
 
-  //  delete question (16 ms)
+  //  delete question
 
   //  add option to question
 
