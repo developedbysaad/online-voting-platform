@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    static async customUrl(customUrl) {
+      return await Election.findOne({
+        where: {
+          customUrl,
+        },
+      });
+    }
+
     static async launch(id) {
       return await Election.update(
         { launched: true },
@@ -50,12 +58,21 @@ module.exports = (sequelize, DataTypes) => {
         }
       );
     }
+
+    static async delete(id) {
+      return await Election.destroy({
+        where: {
+          id,
+        },
+      });
+    }
   }
 
   Election.init(
     {
       name: DataTypes.STRING,
       status: DataTypes.INTEGER,
+      customUrl: DataTypes.STRING,
       launched: DataTypes.BOOLEAN,
       ended: DataTypes.BOOLEAN,
       startDate: DataTypes.DATE,

@@ -14,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
     }
     static async add(voterId, password, electionId) {
       return await Voter.create({
-        voterId: voterId,
-        password: password,
-        electionId: electionId,
+        voterId,
+        password,
+        electionId,
         voted: false,
         responses: [],
       });
@@ -34,14 +34,6 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-    }
-
-    static async delete(id) {
-      return await Voter.destroy({
-        where: {
-          id,
-        },
-      });
     }
 
     static async markAsVoted(id) {
@@ -68,6 +60,14 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
+    }
+
+    static async delete(id) {
+      return await Voter.destroy({
+        where: {
+          id,
+        },
+      });
     }
   }
   Voter.init(

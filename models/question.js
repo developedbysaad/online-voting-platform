@@ -36,6 +36,14 @@ module.exports = (sequelize, DataTypes) => {
         }
       );
     }
+
+    static async delete(id) {
+      return await Question.destroy({
+        where: {
+          id,
+        },
+      });
+    }
   }
   Question.init(
     {

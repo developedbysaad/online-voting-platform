@@ -286,16 +286,16 @@ app.delete(
         where: { questionId: question.id },
       });
       options.forEach(async (option) => {
-        await Option.destroy({ where: { id: option.id } });
+        await Option.delete(option.id);
       });
-      await Question.destroy({ where: { id: Question.id } });
+      await Question.delete(question.id);
     });
 
     const voters = await Voter.findAll({
       where: { electionId: request.params.id },
     });
     voters.forEach(async (voter) => {
-      await Voter.destroy({ where: { id: voter.id } });
+      await Voter.delete(voter.id);
     });
 
     try {
@@ -589,7 +589,7 @@ app.delete(
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     try {
-      await Option.destroy({ where: { id: request.params.id } });
+      await Option.delete(request.params.id);
       return response.json({ ok: true });
     } catch (error) {
       console.log(error);

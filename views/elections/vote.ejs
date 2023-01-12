@@ -17,7 +17,7 @@
     <% } else { %>
         <% if (voter.voted) { %>
             <div class="flex justify-center">
-                <p class="text-4xl text-selected-text absolute top-20">Thank you for voting.</p>
+                <p class="text-4xl text-selected-text absolute top-20">Thank you! Your vote has been saved</p>
             </div>
         <% } else { %>
             <%- include ('ballot.ejs', {election: election, voter: voter}) %>

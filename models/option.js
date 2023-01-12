@@ -33,10 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       );
     }
 
-    static async delete(questionId) {
+    static async delete(id) {
       return await Option.destroy({
         where: {
-          id: questionId,
+          id,
         },
       });
     }
