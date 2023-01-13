@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    static async find(id) {
+      return await Admin.findByPk(id);
+    }
+
     static createAdmin(name, email, password) {
       return this.create({
         name,

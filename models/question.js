@@ -23,7 +23,13 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async edit(title, description, questionId) {
+    static async find(electionId) {
+      return await Question.findAll({
+        where: { electionId },
+      });
+    }
+
+    static async edit(title, description, id) {
       return await Question.update(
         {
           title,
@@ -31,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
           where: {
-            id: questionId,
+            id,
           },
         }
       );

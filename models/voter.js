@@ -12,6 +12,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "electionId",
       });
     }
+
+    static async find(electionId) {
+      return await Voter.findAll({
+        where: { electionId },
+      });
+    }
+
     static async add(voterId, password, electionId) {
       return await Voter.create({
         voterId,

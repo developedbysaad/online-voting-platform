@@ -20,8 +20,9 @@
     </div>
 
     
-   <div class="container mx-auto flex justify-center text-2xl">
-    <p class="font-semibold text-gray-400">Public URL :</p> &nbsp;<a href="/election/<%=election.id%>/vote" target="_blank"> &nbsp; <span class="text-blue-400">/election/<%=election.id%>/vote &nbsp; <i class="fa fa-external-link-alt animate-bounce"></i></span></a>
+   <div class="mx-auto flex justify-center text-2xl">
+    <p class="font-semibold text-gray-400">Public URL :</p> &nbsp;<a href="/e/<%=election.customUrl%>/vote" target="_blank"> &nbsp; <span class="text-blue-400">/e/<%=election.customUrl%>/vote &nbsp; <i class="fa fa-external-link-alt animate-bounce"></i></span></a>
+    <a href="/election/<%= election.id %>" class="-mr-10 ml-10 text-white bg-red-400 px-4 rounded-3xl pb-2 pl-5 pt-1"> <i class="fa fa-edit"></i></a>
    </div>
 
 
@@ -30,7 +31,7 @@
 
    <div class="container flex mx-auto w-5/6  pt-8">
      <a href="/election/<%= election.id %>/voter" class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white">Manage Voters &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
-       <a href="/election/<%= election.id %>/result" target="_blank" class="bg-red-400 boder-2 px-6 py-2 mx-auto rounded-3xl hover:bg-red-500 text-white">View Live Result &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
+       <a href="/e/<%= election.customUrl %>/result" target="_blank" class="bg-red-400 boder-2 px-6 py-2 mx-auto rounded-3xl hover:bg-red-500 text-white">View Live Result &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
        <p class="pt-2 text-gray-300 text-xl"><%= votesCount %> / <%= totalVoters %> Voters voted</p>
     </div>
 

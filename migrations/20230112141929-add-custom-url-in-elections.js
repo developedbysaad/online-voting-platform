@@ -5,7 +5,6 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.addColumn("Elections", "customUrl", {
       type: Sequelize.DataTypes.STRING,
-      allowNull: false,
       unique: true,
     });
   },

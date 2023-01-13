@@ -2,29 +2,29 @@ Deployed at [online-voting-platform.developedbysaad.com](https://online-voting-p
 
 Online Voting Platform lets you host elections online:
 
- - Create an Elections
+- Create an Elections
 
-	- Create Questions
+  - Create Questions
 
-		- Add Options
+    - Add Options
 
-	- Create Voters
+  - Create Voters
 
-	- Preview Elections
+  - Preview Elections
 
-	- Launch Election
+  - Launch Election
 
-		- View results live in graphs
+    - View results live in graphs
 
-		- Manage voters while the election is live
+    - Manage voters while the election is live
 
-	- Separate Login screen For voters
+  - Separate Login screen For voters
 
-	- UI for Voters to vote
+  - UI for Voters to vote
 
-	- End Election
+  - End Election
 
-	- View results in graphs
+  - View results in graphs
 
 **Landing Page:**
 ![Screenshot from https://online-voting-platform.developedbysaad.com](https://github.com/developedbysaad/online-voting-platform/blob/main/public/images/landing-page.png)
@@ -37,11 +37,9 @@ Online Voting Platform lets you host elections online:
 
 ![Screenshot from https://online-voting-platform.developedbysaad.com](https://github.com/developedbysaad/online-voting-platform/blob/main/public/images/admin-login.png)
 
-
 **Admin Dashboard**
 
 ![Screenshot from https://online-voting-platform.developedbysaad.com](https://github.com/developedbysaad/online-voting-platform/blob/main/public/images/admin-dashboard.png)
-
 
 ![Screenshot from https://online-voting-platform.developedbysaad.com](https://github.com/developedbysaad/online-voting-platform/blob/main/public/images/create-new-election.png)
 
@@ -86,4 +84,3 @@ Online Voting Platform lets you host elections online:
 ![Screenshot from https://online-voting-platform.developedbysaad.com](https://github.com/developedbysaad/online-voting-platform/blob/main/public/images/voter-login-screen.png)
 
 ![Screenshot from https://online-voting-platform.developedbysaad.com](https://github.com/developedbysaad/online-voting-platform/blob/main/public/images/voter-thank-you-screen.png)
-

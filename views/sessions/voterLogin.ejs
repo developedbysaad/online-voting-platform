@@ -12,7 +12,7 @@
       <div class="w-full bg-white rounded shadow-lg p-8 m-4  md:max-w-sm md:mx-auto">
         <span class="block w-full text-xl uppercase font-bold mb-4">Voter Login</span> 
         <!-- Form starts here -->
-        <form class="mb-2" action="/election/<%=election.id%>/voterLogin" method="post">
+        <form class="mb-2" action="/e/<%=election.customUrl%>/voterLogin" method="post">
           <% if(messages && messages.error && messages.error.length > 0)  { %>
             <% for(var i=0; i<messages.error.length; i++) { %>
                     <li class="text-red-600"> <%= messages.error[i] %></li>

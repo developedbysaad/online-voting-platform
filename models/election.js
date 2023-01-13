@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    static async find(id) {
+      return await Election.findByPk(id);
+    }
+
     static async add(adminId, name) {
       return await Election.create({
         adminId,
@@ -27,6 +31,17 @@ module.exports = (sequelize, DataTypes) => {
         launched: false,
         ended: false,
       });
+    }
+
+    static async edit(customUrl, id) {
+      return await Election.update(
+        { customUrl },
+        {
+          where: {
+            id,
+          },
+        }
+      );
     }
 
     static async customUrl(customUrl) {

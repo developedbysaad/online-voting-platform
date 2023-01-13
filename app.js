@@ -262,9 +262,10 @@ app.post(
     const userId = request.user.id;
 
     try {
-      const electionId = await Election.add(userId, request.body.title);
-      const id = electionId.id;
-      response.redirect(`/election/${id}/question`);
+      const election = await Election.add(userId, request.body.title);
+      const electionId = election.id;
+      await Election.edit(electionId, electionId);
+      response.redirect(`/election/${electionId}/question`);
     } catch (error) {
       console.log(error);
       response.send(error);
@@ -304,6 +305,53 @@ app.delete(
     } catch (error) {
       console.log(error);
       response.send(error);
+    }
+  }
+);
+
+// Custom Url Edit Page
+
+app.get(
+  "/election/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const admin = await Admin.find(request.user.id);
+    const election = await Election.find(request.params.id);
+    response.render(`elections/editCustomUrl`, {
+      csrfToken: request.csrfToken(),
+      election,
+      username: admin.name,
+    });
+  }
+);
+
+// Create Custom Url
+
+app.post(
+  "/e/:id/customUrl",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const admin = await Admin.find(request.user.id);
+    const election = await Election.find(request.params.id);
+    if (request.user.id === admin.id) {
+      if (request.body.customUrl.length < 2) {
+        request.flash("error", "Custom Url should have minimum 2 characters");
+        return response.redirect(`/election/${election.id}`);
+      }
+      if (request.body.customUrl.includes(" ")) {
+        request.flash("error", "spaces are not allowed");
+        return response.redirect(`/election/${election.id}`);
+      }
+      try {
+        await Election.edit(request.body.customUrl, election.id);
+        return response.redirect(`/election/${election.id}/question`);
+      } catch (error) {
+        request.flash("error", "This URL is already taken, Try again");
+        console.log(error);
+        return response.redirect(`/election/${election.id}`);
+      }
+    } else {
+      return response.redirect("/");
     }
   }
 );
@@ -351,12 +399,12 @@ app.get(
   "/election/:id/question",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
+    const userId = request.user.id;
+    const admin = await Admin.findByPk(userId);
     const election = await Election.findByPk(request.params.id);
     if (election.launched) {
       console.log("Election already launched");
-      return response.redirect(`/election/${request.params.id}`);
+      return response.redirect(`/e/${election.customUrl}`);
     }
     const questions = await Question.findAll({
       where: { electionId: request.params.id },
@@ -483,7 +531,7 @@ app.get(
     const election = await Election.findByPk(request.params.electionId);
     if (election.launched) {
       console.log("Election already launched");
-      return response.redirect(`/election/${request.params.electionId}`);
+      return response.redirect(`/e/${election.customUrl}`);
     }
     const question = await Question.findByPk(request.params.questionId);
     const options = await Option.findAll({
@@ -721,7 +769,7 @@ app.get(
   async (request, response) => {
     const userId = request.user.id;
     const admin = await Admin.findByPk(userId);
-    const election = await Election.findByPk(request.params.id);
+    const election = await Election.find(request.params.id);
 
     if (userId !== election.adminId) {
       if (
@@ -745,7 +793,7 @@ app.get(
     const questions = await Question.findAll({
       where: { electionId: request.params.id },
     });
-    if (questions.length === 0) {
+    if (questions.length < 1) {
       request.flash("error", "Please add atleast 1 question");
       return response.redirect(`/election/${request.params.id}/question/`);
     }
@@ -765,7 +813,7 @@ app.get(
     const voters = await Voter.findAll({
       where: { electionId: request.params.id },
     });
-    if (voters.length === 0) {
+    if (voters.length < 1) {
       request.flash("error", "Please add atleast 1 voter");
       return response.redirect(`/election/${request.params.id}/voter`);
     }
@@ -773,9 +821,7 @@ app.get(
     const options = [];
 
     for (let i = 0; i < questions.length; i++) {
-      const allOption = await Option.findAll({
-        where: { questionId: questions[i].id },
-      });
+      const allOption = await Option.find(questions[i].id);
       options.push(allOption);
     }
 
@@ -793,56 +839,51 @@ app.get(
 
 // launch election
 app.get(
-  "/election/:id/launch",
+  "/election/:customUrl/launch",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    console.log("launching Election");
-    const questions = await Question.findAll({
-      where: { electionId: request.params.id },
-    });
-    if (questions.length === 0) {
+    const election = await Election.customUrl(request.params.customUrl);
+
+    const questions = await Question.find(election.id);
+
+    if (questions.length < 1) {
       request.flash("error", "Please add atleast 1 question");
-      return response.redirect(`/election/${request.params.id}/question/`);
+      return response.redirect(`/election/${election.id}/question/`);
     }
 
-    questions.forEach(async (question) => {
-      const allOptions = await Option.findAll({
-        where: { questionId: question.id },
-      });
+    for (let i = 0; i < questions.length; i++) {
+      const allOptions = await Option.find(questions[i].id);
       if (allOptions.length < 2) {
         request.flash("error", "Please add atleast 2 options to each question");
         return response.redirect(
-          `/election/${request.params.id}/question/${question.id}`
+          `/election/${election.id}/question/${questions[i].id}`
         );
       }
-    });
+    }
 
-    const voters = await Voter.findAll({
-      where: { electionId: request.params.id },
-    });
-    if (voters.length === 0) {
+    const voters = await Voter.find(election.id);
+    if (voters.length < 1) {
       request.flash("error", "Please add atleast 1 voter");
-      return response.redirect(`/election/${request.params.id}/voter`);
+      return response.redirect(`/election/${election.id}/voter`);
     }
 
     try {
-      await Election.launch(request.params.id);
-      return response.redirect(`/election/${request.params.id}`);
+      await Election.launch(election.id);
+      return response.redirect(`/e/${election.customUrl}`);
     } catch (error) {
       return response.send(error);
     }
   }
 );
-
 // Live election UI
 
 app.get(
-  "/election/:id",
+  "/e/:customUrl",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const userId = request.user.id;
-    const admin = await Admin.findByPk(userId);
-    const election = await Election.findByPk(request.params.id);
+    const admin = await Admin.find(userId);
+    const election = await Election.customUrl(request.params.customUrl);
 
     if (userId !== election.adminId) {
       if (
@@ -851,7 +892,7 @@ app.get(
         request.user.voterId &&
         election.launched
       ) {
-        return response.redirect(`/election/${election.id}/vote`);
+        return response.redirect(`/e/${election.customUrl}/vote`);
       } else if (
         request.user &&
         request.user.id &&
@@ -863,16 +904,16 @@ app.get(
       return response.redirect("/home");
     }
     if (election.ended) {
-      return response.redirect(`/election/${request.params.id}/result`);
+      return response.redirect(`/e/${election.customUrl}/result`);
     }
     if (!election.launched) {
-      return response.redirect(`/election/${request.params.id}/question`);
+      return response.redirect(`/election/${election.id}/question`);
     }
     const voters = await Voter.findAll({
-      where: { electionId: request.params.id },
+      where: { electionId: election.id },
     });
     const questions = await Question.findAll({
-      where: { electionId: request.params.id },
+      where: { electionId: election.id },
     });
     let votesCount = 0;
     voters.forEach((voter) => {
@@ -898,15 +939,11 @@ app.put(
   "/election/:id/end",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    const adminId = request.user.id;
-    const election = await Election.findByPk(request.params.id);
+    const userId = request.user.id;
+    const election = await Election.find(request.params.id);
 
-    // ensure that admin has access rights
-    if (election.adminId !== adminId) {
-      console.log("You don't have access to edit this election");
-      return response.render("error", {
-        errorMessage: "You are not authorized to view this page",
-      });
+    if (election.adminId !== userId) {
+      return response.redirect("/login");
     }
 
     if (election.ended === true || election.launched === false) {
@@ -915,7 +952,7 @@ app.put(
     }
 
     try {
-      await Election.end(request.params.id);
+      await Election.end(election.id);
       return response.json({ ok: true });
     } catch (error) {
       console.log(error);
@@ -936,9 +973,10 @@ passport.use(
       passwordField: "password",
       passReqToCallback: true,
     },
-    (request, username, password, done) => {
+    async (request, username, password, done) => {
+      const election = await Election.customUrl(request.params.customUrl);
       Voter.findOne({
-        where: { voterId: username, electionId: request.params.id },
+        where: { voterId: username, electionId: election.id },
       })
         .then(async (voter) => {
           const result = await bcrypt.compare(password, voter.password);
@@ -959,8 +997,8 @@ passport.use(
 );
 
 // UI of vote page
-app.get("/election/:id/vote", async (request, response) => {
-  const election = await Election.findByPk(request.params.id);
+app.get("/e/:customUrl/vote", async (request, response) => {
+  const election = await Election.customUrl(request.params.customUrl);
 
   if (election.launched === false) {
     console.log("Election not launched");
@@ -970,12 +1008,12 @@ app.get("/election/:id/vote", async (request, response) => {
   // redirect to results page if election is over
   if (election.ended === true) {
     console.log("Election ended");
-    return response.redirect(`/election/${request.params.id}/result`);
+    return response.redirect(`/e/${election.customUrl}/result`);
   }
 
   const questions = await Question.findAll({
     where: {
-      electionId: request.params.id,
+      electionId: election.id,
     },
   });
   const options = [];
@@ -1001,83 +1039,85 @@ app.get("/election/:id/vote", async (request, response) => {
       csrfToken: request.csrfToken(),
     });
   } else {
-    response.redirect(`/election/${election.id}/voterLogin`);
+    if (election.customUrl && election.customUrl !== election.id) {
+      response.redirect(`/e/${election.customUrl}/voterLogin`);
+    } else {
+      response.redirect(`/e/${election.customUrl}/voterLogin`);
+    }
   }
 });
 
-app.get("/election/:id/voterLogin", async (request, response) => {
-  const election = await Election.findByPk(request.params.id);
+app.get("/e/:customUrl/voterLogin", async (request, response) => {
+  const election = await Election.customUrl(request.params.customUrl);
   response.render("sessions/voterLogin", {
     csrfToken: request.csrfToken(),
-    election: election,
+    election,
     title: "voter Login",
   });
 });
 
 // Voter Login
 app.post(
-  "/election/:id/voterLogin",
+  "/e/:customUrl/voterLogin",
   passport.authenticate("voter-local", {
     failureRedirect: "back",
     failureFlash: true,
   }),
   function (request, response) {
-    return response.redirect(`/election/${request.params.id}/vote`);
+    return response.redirect(`/e/${request.params.customUrl}/vote`);
   }
 );
 
 // submit voter response
-app.post(
-  "/election/:electionId/voter/:id/submit",
-  async (request, response) => {
-    const election = await Election.findByPk(request.params.electionId);
+app.post("/election/:customUrl/voter/:id/submit", async (request, response) => {
+  const election = await Election.customUrl(request.params.customUrl);
 
-    if (election.launched === false) {
-      console.log("Election not launched");
-      return response.render("errorPage/notFound");
-    }
-
-    if (election.ended === true) {
-      console.log("Election ended");
-      return response.render("errorPage/notFound");
-    }
-
-    try {
-      const questions = await Question.findAll({
-        where: {
-          electionId: request.params.electionId,
-        },
-      });
-
-      let responses = [];
-
-      questions.forEach((question) => {
-        const responseId = Number(request.body[`question-${question.id}`]);
-        responses.push(responseId);
-      });
-      await Voter.addResponse(request.params.id, responses);
-      await Voter.markAsVoted(request.params.id);
-      return response.redirect(`/election/${election.id}/vote`);
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
+  if (election.launched === false) {
+    console.log("Election not launched");
+    return response.render("errorPage/notFound");
   }
-);
+
+  if (election.ended === true) {
+    console.log("Election ended");
+    return response.render("errorPage/notFound");
+  }
+
+  try {
+    const questions = await Question.findAll({
+      where: {
+        electionId: election.id,
+      },
+    });
+
+    let responses = [];
+
+    questions.forEach((question) => {
+      const responseId = Number(request.body[`question-${question.id}`]);
+      responses.push(responseId);
+    });
+    await Voter.addResponse(request.params.id, responses);
+    await Voter.markAsVoted(request.params.id);
+    return response.redirect(`/e/${election.customUrl}/vote`);
+  } catch (error) {
+    console.log(error);
+    return response.send(error);
+  }
+});
 
 // ----------------------------- Result Section -------------------------
 
 // Election results
-app.get("/election/:id/result", async (request, response) => {
+app.get("/e/:customUrl/result", async (request, response) => {
+  const election = await Election.customUrl(request.params.customUrl);
   const questions = await Question.findAll({
     where: {
-      electionId: request.params.id,
+      electionId: election.id,
     },
   });
 
   const voters = await Voter.findAll({
     where: {
-      electionId: request.params.id,
+      electionId: election.id,
     },
   });
 
@@ -1120,8 +1160,6 @@ app.get("/election/:id/result", async (request, response) => {
     });
     options.push(allOption);
   });
-
-  const election = await Election.findByPk(request.params.id);
 
   if (request.user && request.user.id && !request.user.voterId) {
     const adminId = request.user.id;

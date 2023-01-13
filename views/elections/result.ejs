@@ -7,7 +7,7 @@
     <% if (admin == true) { %>
       <% if (!election.ended) { %>
         <div class="container flex px-2 mx-auto pt-2 justify-between mt-5 sticky top-0">
-          <a href="/election/<%=election.id%>">
+          <a href="/e/<%=election.customUrl%>">
             <button class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white" onclick="toggleElectionModal()"> <%= election.name%> &nbsp; <i class="fa fa-home"></i></button>
           </a>
         </div>

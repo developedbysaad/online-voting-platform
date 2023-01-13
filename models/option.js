@@ -13,6 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    static async find(questionId) {
+      return await Option.findAll({
+        where: { questionId },
+      });
+    }
+
     static async add(option, questionId) {
       return await Option.create({
         option,
