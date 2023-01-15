@@ -31,7 +31,7 @@
 
    <div class="container flex mx-auto w-5/6  pt-8">
      <a href="/election/<%= election.id %>/voter" class="bg-red-400 boder-2 px-6 py-2 rounded-3xl hover:bg-red-500 text-white">Manage Voters &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
-       <a href="/e/<%= election.customUrl %>/result" target="_blank" class="bg-red-400 boder-2 px-6 py-2 mx-auto rounded-3xl hover:bg-red-500 text-white">View Live Result &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
+       <a href="/e/<%= election.customUrl %>/result" class="bg-red-400 boder-2 px-6 py-2 mx-auto rounded-3xl hover:bg-red-500 text-white">View Live Result &nbsp;<i class="fa fa-external-link-alt animate-bounce"></i></a>   
        <p class="pt-2 text-gray-300 text-xl"><%= votesCount %> / <%= totalVoters %> Voters voted</p>
     </div>
 

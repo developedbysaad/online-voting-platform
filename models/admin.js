@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async updatePassword(name, email, password, id) {
+    static async updateProfile(name, email, password, id) {
       return await this.update(
         {
           name,

@@ -1,6 +1,21 @@
 const express = require("express");
 const app = express();
-const { Admin, Election, Voter, Question, Option } = require("./models");
+
+// Controllers
+
+const adminsController = require("./controllers/admins.controller");
+const electionsController = require("./controllers/elections.controller");
+const optionsController = require("./controllers/options.controller");
+const questionsController = require("./controllers/questions.controller");
+const resultsController = require("./controllers/results.controller");
+const sessionsController = require("./controllers/sessions.controller");
+const votesController = require("./controllers/votes.controller");
+const votersController = require("./controllers/voters.controller");
+
+// Models
+
+const { Admin, Election, Voter } = require("./models");
+
 const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -13,7 +28,6 @@ const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
-const saltRounds = 10;
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
@@ -85,6 +99,8 @@ passport.deserializeUser((user, done) => {
 
 // Session section end here
 
+// Landing Page
+
 app.get("/", function (request, response) {
   if (request.user && request.user.id) {
     response.redirect("/home");
@@ -95,61 +111,19 @@ app.get("/", function (request, response) {
   }
 });
 
-// Admin Sign-up
-app.get("/signup", function (request, response) {
-  response.render("sessions/adminSignup", {
-    title: "Sign Up",
-    csrfToken: request.csrfToken(),
-  });
-});
+//-------------------------------- Admin Section ------------------------
 
-//          -------------------- Admin Section ------------------------
+// Admin Sign-up
+
+app.get("/signup", sessionsController.getAdminsSignUp);
 
 //Create Admin Users
 
-app.post("/users", async (request, response) => {
-  // Could validate password in model file [ was having trouble using "len"], therefore using flash here to validate
-  if (request.body.password.length === 0) {
-    request.flash("error", "Password is required");
-    return response.redirect("/signup");
-  }
-
-  if (request.body.password.length < 8) {
-    request.flash("error", "Password should have minimum 8 characters");
-    return response.redirect("/signup");
-  }
-
-  //Hash password using bcrypt
-  const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
-  try {
-    const user = await Admin.create({
-      name: request.body.name,
-      email: request.body.email,
-      password: hashedPwd,
-    });
-    request.login(user, (err) => {
-      if (err) {
-        console.log(err);
-      }
-      response.redirect("/home");
-    });
-  } catch (error) {
-    console.log(error);
-    request.flash(
-      "error",
-      error.errors.map((error) => error.message)
-    );
-    return response.redirect("/signup");
-  }
-});
+app.post("/users", sessionsController.postAdmins);
 
 // Admin Login
-app.get("/login", function (request, response) {
-  response.render("sessions/adminLogin", {
-    title: "Login",
-    csrfToken: request.csrfToken(),
-  });
-});
+
+app.get("/login", sessionsController.getAdminsLogin);
 
 // Admin login using session
 app.post(
@@ -158,33 +132,15 @@ app.post(
     failureRedirect: "/login",
     failureFlash: true,
   }),
-  (request, response) => {
-    console.log(request.user);
-    response.redirect("/home");
-  }
+  sessionsController.postAdminsLogin
 );
 
 // Admin Dashboard
+
 app.get(
   "/home",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
-    const admin = await Admin.findByPk(userId);
-
-    const elections = await Election.findAll({
-      where: { adminId: request.user.id },
-    });
-    if (userId !== admin.id) {
-      return response.redirect("/login");
-    }
-
-    response.render("admins/dashboard", {
-      username: admin.name,
-      elections: elections,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  adminsController.getAdminsDashboard
 );
 
 //  Admin Profile page
@@ -192,65 +148,29 @@ app.get(
 app.get(
   "/profile",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
-    const admin = await Admin.findByPk(userId);
-    response.render("admins/profile", {
-      username: admin.name,
-      admin,
-      csrfToken: request.csrfToken(),
-      title: "Profile",
-    });
-  }
+  adminsController.getAdminProfile
 );
 
-// Admin password update
+// Admin Profile update
 
 app.post(
   "/profile/update",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
-    const admin = await Admin.findByPk(userId);
-    try {
-      const hashpwd = await bcrypt.hash(request.body.password, saltRounds);
-      await Admin.updatePassword(
-        request.body.name,
-        request.body.email,
-        hashpwd,
-        admin.id
-      );
-      response.redirect("/profile");
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
+  adminsController.updateAdminProfile
 );
 
 // Admin sign out
-app.get("/signout", (request, response, next) => {
-  request.logout((err) => {
-    if (err) {
-      return next(err);
-    }
-    response.redirect("/login");
-  });
-});
 
-//              --------------- Election Section ------------------
+app.get("/signout", sessionsController.getAdminSignout);
+
+// ----------------------------------- Election Section ------------------
 
 // Get election in Json format
+
 app.get(
   "/electionJson",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const elections = await Election.findAll({
-      where: { adminId: request.user.id },
-    });
-
-    return response.json(elections);
-  }
+  electionsController.getElectionJson
 );
 
 // Create Election
@@ -258,55 +178,23 @@ app.get(
 app.post(
   "/election",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
+  electionsController.postElection
+);
 
-    try {
-      const election = await Election.add(userId, request.body.title);
-      const electionId = election.id;
-      await Election.edit(electionId, electionId);
-      response.redirect(`/election/${electionId}/question`);
-    } catch (error) {
-      console.log(error);
-      response.send(error);
-    }
-  }
+// Update Election Name
+
+app.post(
+  "/election/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  electionsController.updateElectionName
 );
 
 // delete election
+
 app.delete(
   "/election/:id/delete",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const questions = await Question.findAll({
-      where: { electionId: request.params.id },
-    });
-
-    questions.forEach(async (question) => {
-      const options = await Option.findAll({
-        where: { questionId: question.id },
-      });
-      options.forEach(async (option) => {
-        await Option.delete(option.id);
-      });
-      await Question.delete(question.id);
-    });
-
-    const voters = await Voter.findAll({
-      where: { electionId: request.params.id },
-    });
-    voters.forEach(async (voter) => {
-      await Voter.delete(voter.id);
-    });
-
-    try {
-      await Election.destroy({ where: { id: request.params.id } });
-      return response.json({ ok: true });
-    } catch (error) {
-      console.log(error);
-      response.send(error);
-    }
-  }
+  electionsController.deleteElection
 );
 
 // Custom Url Edit Page
@@ -314,15 +202,7 @@ app.delete(
 app.get(
   "/election/:id",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const admin = await Admin.find(request.user.id);
-    const election = await Election.find(request.params.id);
-    response.render(`elections/editCustomUrl`, {
-      csrfToken: request.csrfToken(),
-      election,
-      username: admin.name,
-    });
-  }
+  electionsController.getCustomUrl
 );
 
 // Create Custom Url
@@ -330,93 +210,23 @@ app.get(
 app.post(
   "/e/:id/customUrl",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const admin = await Admin.find(request.user.id);
-    const election = await Election.find(request.params.id);
-    if (request.user.id === admin.id) {
-      if (request.body.customUrl.length < 2) {
-        request.flash("error", "Custom Url should have minimum 2 characters");
-        return response.redirect(`/election/${election.id}`);
-      }
-      if (request.body.customUrl.includes(" ")) {
-        request.flash("error", "spaces are not allowed");
-        return response.redirect(`/election/${election.id}`);
-      }
-      try {
-        await Election.edit(request.body.customUrl, election.id);
-        return response.redirect(`/election/${election.id}/question`);
-      } catch (error) {
-        request.flash("error", "This URL is already taken, Try again");
-        console.log(error);
-        return response.redirect(`/election/${election.id}`);
-      }
-    } else {
-      return response.redirect("/");
-    }
-  }
+  electionsController.postCustomUrl
 );
 
-// Edit / Update name of election
-
-app.post(
-  "/election/:id",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      await Election.update(
-        { name: request.body.title },
-        { where: { id: request.params.id } }
-      );
-      response.redirect(`/election/${request.params.id}/question`);
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
-);
-//             ---------------- Question Section ------------------------
+//------------------------------- Question Section ------------------------
 
 // Get questions of the election
 app.get(
   "/election/:id/questionJson",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const election = await Election.findByPk(request.params.id);
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.redirect(`/election/${request.params.id}`);
-    }
-    const allQuestions = await Question.findAll({
-      where: { electionId: request.params.id },
-    });
-
-    return response.json(allQuestions);
-  }
+  questionsController.getQuestionJson
 );
 
-// Web page to add questions
+// Add Question UI
 app.get(
   "/election/:id/question",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
-    const admin = await Admin.findByPk(userId);
-    const election = await Election.findByPk(request.params.id);
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.redirect(`/e/${election.customUrl}`);
-    }
-    const questions = await Question.findAll({
-      where: { electionId: request.params.id },
-    });
-
-    response.render("elections/addQuestion", {
-      election,
-      username: admin.name,
-      questions,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  questionsController.getQuestion
 );
 
 // Create Question
@@ -424,229 +234,77 @@ app.get(
 app.post(
   "/election/:id/questions/add",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      const question = await Question.add(
-        request.body.title,
-        request.body.description,
-        request.params.id
-      );
-      console.log(question);
-      response.redirect(`/election/${request.params.id}/question`);
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
+  questionsController.postQuestion
 );
 
-// edit question UI
+// Update Question UI
 app.get(
   "/election/:electionId/question/:questionId/editQuestion",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
-    const election = await Election.findByPk(request.params.electionId);
-
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.redirect(`/election/${request.params.electionId}`);
-    }
-    const question = await Question.findByPk(request.params.questionId);
-    response.render("elections/editQuestion", {
-      username: admin.name,
-      election,
-      question,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  questionsController.getUpdateQuestion
 );
 
 // Update question
 app.post(
   "/election/:electionId/question/:questionId/update",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      await Question.edit(
-        request.body.title,
-        request.body.description,
-        request.params.questionId
-      );
-      response.redirect(`/election/${request.params.electionId}/question/`);
-    } catch (error) {
-      console.log(error);
-      return;
-    }
-  }
+  questionsController.updateQuestion
 );
 
 // Delete Question
 
 app.delete(
-  "/election/:id/question/:questiondId",
+  "/election/:id/question/:questionId",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      await Option.destroy({
-        where: { questionId: request.params.questiondId },
-      });
-
-      await Question.destroy({ where: { id: request.params.questiondId } });
-      return response.json({ ok: true });
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
+  questionsController.deleteQuestion
 );
 
-//             ---------------- Option Section ------------------------
+//---------------------------------- Option Section ------------------------
 
 // get options
 app.get(
-  "/election/:electionId/question/:questionId/option",
+  "/election/:electionId/question/:questionId/optionJson",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const election = await Election.findByPk(request.params.electionId);
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.redirect(`/election/${request.params.electionId}`);
-    }
-    const options = await Option.findAll({
-      where: { questionId: request.params.questionId },
-    });
-    return response.send(options);
-  }
+  optionsController.getOptionJson
 );
 
-// UI to add options
+// Add Option UI
 app.get(
   "/election/:electionId/question/:questionId",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
-    const election = await Election.findByPk(request.params.electionId);
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.redirect(`/e/${election.customUrl}`);
-    }
-    const question = await Question.findByPk(request.params.questionId);
-    const options = await Option.findAll({
-      where: {
-        questionId: request.params.questionId,
-      },
-    });
-    const voter = await Voter.findAll({
-      where: {
-        electionId: request.params.electionId,
-      },
-    });
-    return response.render("elections/addOption", {
-      username: admin.name,
-      election: election,
-      question: question,
-      options: options,
-      voter: voter,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  optionsController.getOption
 );
 
-// add option to questions
+// add option
 app.post(
   "/election/:electionId/question/:questionId/options/add",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const election = await Election.findByPk(request.params.electionId);
-    const question = await Question.findByPk(request.params.questionId);
-
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.render("error", {
-        errorMessage: "Election is already live",
-      });
-    }
-
-    try {
-      await Option.add(request.body.option, request.params.questionId);
-      response.redirect(
-        `/election/${request.params.electionId}/question/${request.params.questionId}`
-      );
-    } catch (error) {
-      console.log(error);
-      request.flash(
-        "error",
-        error.errors.map((error) => error.message)
-      );
-      console.log(error);
-      return response.redirect(
-        `/election/${election.id}/question/${question.id}`
-      );
-    }
-  }
+  optionsController.postOption
 );
 
-// Edit Option UI
+// update Option UI
 
 app.get(
   "/election/:electionId/question/:questionId/option/:optionId/editOption",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
-    const election = await Election.findByPk(request.params.electionId);
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.redirect(`/election/${request.params.electionId}`);
-    }
-    const option = await Option.findByPk(request.params.optionId);
-    const question = await Question.findByPk(request.params.questionId);
-    response.render("elections/editOption", {
-      username: admin.name,
-      election: election,
-      question: question,
-      option: option,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  optionsController.getUpdateOption
 );
 
 // Edit option
 app.post(
   "/election/:electionId/question/:questionId/option/:optionId/update",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      await Option.edit(request.body.option, request.params.optionId);
-      response.redirect(
-        `/election/${request.params.electionId}/question/${request.params.questionId}`
-      );
-    } catch (error) {
-      console.log(error);
-      return;
-    }
-  }
+  optionsController.updateOption
 );
 
 // delete option for question
 app.delete(
   "/election/:electionId/question/:questionId/option/:id",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      await Option.delete(request.params.id);
-      return response.json({ ok: true });
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
+  optionsController.deleteOption
 );
 
-//             ---------------- Voter Section ------------------------
+//---------------------------------- Voter Section ------------------------
 
 // Create Voter
 
@@ -654,314 +312,78 @@ app.delete(
 app.get(
   "/election/:id/voterJson",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const election = await Election.findByPk(request.params.id);
-    if (election.launched) {
-      console.log("Election already launched");
-      return response.redirect(`/election/${request.params.id}`);
-    }
-    const voters = await Voter.findAll({
-      where: { electionId: request.params.id },
-    });
-
-    return response.json(voters);
-  }
+  votersController.getVoterJson
 );
 
 // Add voters UI
 app.get(
   "/election/:id/voter",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
-    const election = await Election.findByPk(request.params.id);
-
-    const voters = await Voter.findAll({
-      where: { electionId: request.params.id },
-    });
-
-    response.render("elections/addVoter", {
-      election,
-      username: admin.name,
-      voters,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  votersController.getVoter
 );
+
+// Add voter
 
 app.post(
   "/election/:id/voters/add",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      const hashpwd = await bcrypt.hash(request.body.password, saltRounds);
-      await Voter.add(request.body.voterId, hashpwd, request.params.id);
-      response.redirect(`/election/${request.params.id}/voter`);
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
+  votersController.postVoter
 );
 
 // edit voter UI
 app.get(
   "/election/:electionId/voter/:voterId/editVoter",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
-    const election = await Election.findByPk(request.params.electionId);
-
-    const voter = await Voter.findByPk(request.params.voterId);
-    const question = await Question.findByPk(request.params.questionId);
-    response.render("elections/editVoter", {
-      username: admin.name,
-      election,
-      question,
-      voter,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  votersController.getUpdateVoter
 );
 
 // edit voter
 app.post(
   "/election/:electionId/voter/:voterId/update",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      await Voter.edit(
-        request.body.voterId,
-        request.body.password,
-        request.params.voterId
-      );
-      response.redirect(`/election/${request.params.electionId}/voter`);
-    } catch (error) {
-      console.log(error);
-      return;
-    }
-  }
+  votersController.updateVoter
 );
 
 // delete voter
 app.post(
   "/election/:electionId/voter/:voterId/delete",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      await Voter.delete(request.params.voterId);
-      return response.json({ ok: true });
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
+  votersController.deleteVoter
 );
 
-//             ---------------- Election preview section ------------------------
+//-------------------------------- Election preview section ------------------------
 
 // election preview
 app.get(
   "/election/:id/preview",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
-    const admin = await Admin.findByPk(userId);
-    const election = await Election.find(request.params.id);
-
-    if (userId !== election.adminId) {
-      if (
-        request.user &&
-        request.user.id &&
-        request.user.voterId &&
-        election.launched
-      ) {
-        return response.redirect(`/election/${election.id}/vote`);
-      } else if (
-        request.user &&
-        request.user.id &&
-        request.user.voterId &&
-        !election.launched
-      ) {
-        return response.render("elections/draft");
-      }
-      return response.redirect("back");
-    }
-
-    const questions = await Question.findAll({
-      where: { electionId: request.params.id },
-    });
-    if (questions.length < 1) {
-      request.flash("error", "Please add atleast 1 question");
-      return response.redirect(`/election/${request.params.id}/question/`);
-    }
-
-    for (let i = 0; i < questions.length; i++) {
-      const AllOptions = await Option.findAll({
-        where: { questionId: questions[i].id },
-      });
-      if (AllOptions.length < 2) {
-        request.flash("error", "Please add atleast 2 options to each question");
-        return response.redirect(
-          `/election/${request.params.id}/question/${questions[i].id}`
-        );
-      }
-    }
-
-    const voters = await Voter.findAll({
-      where: { electionId: request.params.id },
-    });
-    if (voters.length < 1) {
-      request.flash("error", "Please add atleast 1 voter");
-      return response.redirect(`/election/${request.params.id}/voter`);
-    }
-
-    const options = [];
-
-    for (let i = 0; i < questions.length; i++) {
-      const allOption = await Option.find(questions[i].id);
-      options.push(allOption);
-    }
-
-    response.render("elections/preview", {
-      username: admin.name,
-      election,
-      questions,
-      options,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  electionsController.previewElection
 );
 
-//             ---------------- Election Launch section ------------------------
+//---------------------------------- Election Launch section ------------------------
 
 // launch election
 app.get(
   "/election/:customUrl/launch",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const election = await Election.customUrl(request.params.customUrl);
-
-    const questions = await Question.find(election.id);
-
-    if (questions.length < 1) {
-      request.flash("error", "Please add atleast 1 question");
-      return response.redirect(`/election/${election.id}/question/`);
-    }
-
-    for (let i = 0; i < questions.length; i++) {
-      const allOptions = await Option.find(questions[i].id);
-      if (allOptions.length < 2) {
-        request.flash("error", "Please add atleast 2 options to each question");
-        return response.redirect(
-          `/election/${election.id}/question/${questions[i].id}`
-        );
-      }
-    }
-
-    const voters = await Voter.find(election.id);
-    if (voters.length < 1) {
-      request.flash("error", "Please add atleast 1 voter");
-      return response.redirect(`/election/${election.id}/voter`);
-    }
-
-    try {
-      await Election.launch(election.id);
-      return response.redirect(`/e/${election.customUrl}`);
-    } catch (error) {
-      return response.send(error);
-    }
-  }
+  electionsController.LaunchElection
 );
 // Live election UI
 
 app.get(
   "/e/:customUrl",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
-    const admin = await Admin.find(userId);
-    const election = await Election.customUrl(request.params.customUrl);
-
-    if (userId !== election.adminId) {
-      if (
-        request.user &&
-        request.user.id &&
-        request.user.voterId &&
-        election.launched
-      ) {
-        return response.redirect(`/e/${election.customUrl}/vote`);
-      } else if (
-        request.user &&
-        request.user.id &&
-        request.user.voterId &&
-        !election.launched
-      ) {
-        return response.render("elections/draft");
-      }
-      return response.redirect("/home");
-    }
-    if (election.ended) {
-      return response.redirect(`/e/${election.customUrl}/result`);
-    }
-    if (!election.launched) {
-      return response.redirect(`/election/${election.id}/question`);
-    }
-    const voters = await Voter.findAll({
-      where: { electionId: election.id },
-    });
-    const questions = await Question.findAll({
-      where: { electionId: election.id },
-    });
-    let votesCount = 0;
-    voters.forEach((voter) => {
-      if (voter.voted) {
-        votesCount++;
-      }
-    });
-    let totalVoters = voters.length;
-    response.render("elections/dashboard", {
-      election,
-      username: admin.name,
-      questions,
-      voters,
-      votesCount,
-      totalVoters,
-      csrfToken: request.csrfToken(),
-    });
-  }
+  electionsController.liveElection
 );
 
 // end election
 app.put(
   "/election/:id/end",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const userId = request.user.id;
-    const election = await Election.find(request.params.id);
-
-    if (election.adminId !== userId) {
-      return response.redirect("/login");
-    }
-
-    if (election.ended === true || election.launched === false) {
-      console.log("Election not launched");
-      return response.render("errorPage/notFound");
-    }
-
-    try {
-      await Election.end(election.id);
-      return response.json({ ok: true });
-    } catch (error) {
-      console.log(error);
-      return response.send(error);
-    }
-  }
+  electionsController.endElection
 );
 
-//            -----------------     Vote Section       -------------------------
+//----------------------------------     Vote Section       -------------------------
 
 // voter passport session
 
@@ -997,64 +419,11 @@ passport.use(
 );
 
 // UI of vote page
-app.get("/e/:customUrl/vote", async (request, response) => {
-  const election = await Election.customUrl(request.params.customUrl);
+app.get("/e/:customUrl/vote", votesController.getVote);
 
-  if (election.launched === false) {
-    console.log("Election not launched");
-    return response.render("elections/draft");
-  }
+// Voter login UI
 
-  // redirect to results page if election is over
-  if (election.ended === true) {
-    console.log("Election ended");
-    return response.redirect(`/e/${election.customUrl}/result`);
-  }
-
-  const questions = await Question.findAll({
-    where: {
-      electionId: election.id,
-    },
-  });
-  const options = [];
-
-  for (let i = 0; i < questions.length; i++) {
-    const allOption = await Option.findAll({
-      where: { questionId: questions[i].id },
-    });
-    options.push(allOption);
-  }
-
-  // voter logged in
-  if (request.user && request.user.id && request.user.voterId) {
-    const voter = await Voter.findByPk(request.user.id);
-
-    response.render("elections/vote", {
-      title: "Vote",
-      election: election,
-      questions,
-      options,
-      submitted: voter.voted,
-      voter,
-      csrfToken: request.csrfToken(),
-    });
-  } else {
-    if (election.customUrl && election.customUrl !== election.id) {
-      response.redirect(`/e/${election.customUrl}/voterLogin`);
-    } else {
-      response.redirect(`/e/${election.customUrl}/voterLogin`);
-    }
-  }
-});
-
-app.get("/e/:customUrl/voterLogin", async (request, response) => {
-  const election = await Election.customUrl(request.params.customUrl);
-  response.render("sessions/voterLogin", {
-    csrfToken: request.csrfToken(),
-    election,
-    title: "voter Login",
-  });
-});
+app.get("/e/:customUrl/voterLogin", sessionsController.getVoterLogin);
 
 // Voter Login
 app.post(
@@ -1063,144 +432,15 @@ app.post(
     failureRedirect: "back",
     failureFlash: true,
   }),
-  function (request, response) {
-    return response.redirect(`/e/${request.params.customUrl}/vote`);
-  }
+  sessionsController.postVoterLogin
 );
 
-// submit voter response
-app.post("/election/:customUrl/voter/:id/submit", async (request, response) => {
-  const election = await Election.customUrl(request.params.customUrl);
-
-  if (election.launched === false) {
-    console.log("Election not launched");
-    return response.render("errorPage/notFound");
-  }
-
-  if (election.ended === true) {
-    console.log("Election ended");
-    return response.render("errorPage/notFound");
-  }
-
-  try {
-    const questions = await Question.findAll({
-      where: {
-        electionId: election.id,
-      },
-    });
-
-    let responses = [];
-
-    questions.forEach((question) => {
-      const responseId = Number(request.body[`question-${question.id}`]);
-      responses.push(responseId);
-    });
-    await Voter.addResponse(request.params.id, responses);
-    await Voter.markAsVoted(request.params.id);
-    return response.redirect(`/e/${election.customUrl}/vote`);
-  } catch (error) {
-    console.log(error);
-    return response.send(error);
-  }
-});
+// submit voter response from voting page
+app.post("/election/:customUrl/voter/:id/submit", votesController.postVote);
 
 // ----------------------------- Result Section -------------------------
 
 // Election results
-app.get("/e/:customUrl/result", async (request, response) => {
-  const election = await Election.customUrl(request.params.customUrl);
-  const questions = await Question.findAll({
-    where: {
-      electionId: election.id,
-    },
-  });
-
-  const voters = await Voter.findAll({
-    where: {
-      electionId: election.id,
-    },
-  });
-
-  let votesCount = 0;
-  voters.forEach((voter) => {
-    if (voter.voted) {
-      votesCount++;
-    }
-  });
-
-  const totalVoters = voters.length;
-  let totalData = [];
-  let totalOption = [];
-  questions.forEach(async (question) => {
-    let singleOptionCount = [];
-    let singleOption = [];
-    const allOption = await Option.findAll({
-      where: { questionId: question.id },
-    });
-
-    allOption.forEach((option) => {
-      let count = 0;
-      voters.forEach((voter) => {
-        if (voter.responses.includes(option.id)) {
-          count++;
-        }
-      });
-      singleOption.push(option.option);
-      singleOptionCount.push(count);
-    });
-    totalData.push(singleOptionCount);
-    totalOption.push(singleOption);
-  });
-
-  const options = [];
-
-  questions.forEach(async (question) => {
-    const allOption = await Option.findAll({
-      where: { questionId: question.id },
-    });
-    options.push(allOption);
-  });
-
-  if (request.user && request.user.id && !request.user.voterId) {
-    const adminId = request.user.id;
-    const admin = await Admin.findByPk(adminId);
-
-    if (adminId !== election.adminId && !election.ended) {
-      return response.render("errorPage/notFound");
-    }
-
-    response.render("elections/result", {
-      csrfToken: request.csrfToken(),
-      admin: true,
-      username: admin.name,
-      election,
-      questions,
-      options,
-      totalData,
-      totalOption,
-      votesCount,
-      voters,
-      totalVoters,
-    });
-  } else {
-    if (!election.ended) {
-      return response.render("errorPage/notFound");
-    }
-
-    const admin = await Admin.findByPk(election.adminId);
-    return response.render("elections/result", {
-      csrfToken: request.csrfToken(),
-      admin: false,
-      username: admin.name,
-      election,
-      questions,
-      options,
-      totalData,
-      totalOption,
-      votesCount,
-      totalVoters,
-    });
-  }
-});
+app.get("/e/:customUrl/result", resultsController.getResult);
 
 module.exports = app;

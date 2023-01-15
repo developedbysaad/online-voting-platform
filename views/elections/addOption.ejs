@@ -88,7 +88,7 @@ function deleteOption(id) {
   </div>
 
   <div class="flex rounded border w-1/2 mx-auto mt-4">
-    <button class="text-lg font-bold shrink-0 w-40 h-20 text-gray-900 bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+    <button class="text-lg font-bold shrink-0 w-40 h-20 text-gray-900 bg-red-400 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-green-300">
       Question
     </button>
     <div class="ml-5 m-auto">
@@ -97,7 +97,7 @@ function deleteOption(id) {
   </div>
   <% if (options.length === 0 ) { %>
     <div class=" flex rounded border w-1/2 mx-auto mt-4">
-      <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+      <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-green-300">
         Option 1
       </button>
       <div class="ml-5 m-auto text-gray-500">
@@ -108,7 +108,7 @@ function deleteOption(id) {
   <% for (let i=0; i<options.length; i++) { %>
    
   <div class="flex rounded border w-1/2 mx-auto mt-4 gap-2">
-    <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-red-500">
+    <button class="text-md shrink-0 w-40 h-12 text-green-900 bg-green-200 rounded-lg shadow transition-all duration-300 ease-in-out hover:bg-green-300">
       Option <%= i+1 %>
     </button>
       <!-- edit -->

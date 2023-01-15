@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async add(voterId, password, electionId) {
+    static async createVoter(voterId, password, electionId) {
       return await Voter.create({
         voterId,
         password,
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async edit(voterId, password, id) {
+    static async editVoter(voterId, password, id) {
       return await Voter.update(
         {
           voterId,
@@ -56,10 +56,10 @@ module.exports = (sequelize, DataTypes) => {
       );
     }
 
-    static async addResponse(id, response) {
+    static async addResponse(id, responses) {
       return await Voter.update(
         {
-          responses: response,
+          responses,
         },
         {
           where: {
