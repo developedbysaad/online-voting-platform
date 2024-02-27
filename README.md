@@ -2,7 +2,7 @@ Deployed at [online-voting-platform.developedbysaad.com](https://online-voting-p
 
 Online Voting Platform lets you host elections online:
 
-- Create an Elections
+- Create Elections
 
   - Create Questions
 
